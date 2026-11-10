@@ -32,3 +32,30 @@ __pycache__/
 
 # Session-specific (users may want to keep these — uncomment to ignore)
 # output/
+
+# Personal data: this repo holds the tooling only (the candidate's data stays local)
+config.md
+CLAUDE.md
+knowledge_base/**
+!knowledge_base/notes/.gitkeep
+!knowledge_base/papers/.gitkeep
+output/**
+!output/.gitkeep
+JDs/**
+!JDs/example_jd.txt
+job_scanner/state/
+job_scanner/digests/
+job_scanner/scoring_prompt.md
+job_scanner/sources.yaml
+job_scanner/companies.yaml
+.claude/settings.local.json
+.pytest_cache/
+resume_builder/bundles/*
+!resume_builder/bundles/.gitkeep
+resume_builder/experience/*
+!resume_builder/experience/.gitkeep
+resume_builder/support/*
+!resume_builder/support/.gitkeep
+!resume_builder/support/ai_fingerprint_rules.md
+.scratch/
+job_scanner/launchd/*.plist

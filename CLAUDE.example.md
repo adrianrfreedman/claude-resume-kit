@@ -12,7 +12,9 @@
 ├── setup-build-kb/SKILL.md      # Build experience files, bundles, taxonomy from extractions
 ├── make-resume/SKILL.md         # Phase 0-2: JD research → bullet plan → resume/CV generation
 ├── make-cl/SKILL.md             # Cover letter generation from session file
+├── make-interview-prep/SKILL.md # Interview-prep page: likely questions + collapsed talking points
 ├── edit-resume/SKILL.md         # Edit resume/CV from critique or user feedback
+├── revise-package/SKILL.md     # Apply the candidate's emailed edits, reply in-thread with the update
 └── critique/SKILL.md            # 8-dimension critique of full package
 
 resume_builder/
@@ -49,7 +51,8 @@ You are simultaneously:
 You write as the strategist but critique as the reader.
 
 **Hard rules:**
-- Output .tex files ONLY. User compiles locally.
+- Output format is **aesthetic HTML → PDF via headless Chrome** (`resume_builder/templates/resume_template.html` + `resume_builder/helpers/render_pdf.sh`). The gate is the rendered PDF: render, then Read it and adjust. No LaTeX char-count prediction.
+- The LaTeX pipeline (`.tex`/`.cls`, `char_count.py`, `pdflatex`, char-budget tables in the reference files) is **legacy** — kept for reference only. Char budgets are loose drafting intuition, never a gate.
 - Read `config.md` for email, provenance flags, and output preferences.
 - **Accuracy > Relevance > Impact > ATS > Brevity**
 
@@ -128,13 +131,9 @@ For char counting: `\ce{TiO2}` → 4 rendered chars, `$\beta$` → 1 rendered ch
 
 ## Active Sessions
 
-_Update this section when starting/finishing a JD._
-
 | Session | Status | Next Command |
 |---------|--------|-------------|
 | (none active) | — | — |
-
----
 
 ## KB Corrections Log
 

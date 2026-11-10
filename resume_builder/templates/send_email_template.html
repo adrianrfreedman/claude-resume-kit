@@ -1,0 +1,89 @@
+<!doctype html>
+<!--
+  Package email body. Email-safe: tables, inline styles, no JS, no web fonts.
+  Copy to output/<Folder>/send_<name>.html, replace every {{…}}, set ACCENT to the
+  resume's --accent and WASH to a very light tint of it. Repeat or delete <tr> rows
+  marked "repeat". Plain-text twin goes in send_<name>.txt (WhatsApp + fallback).
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>{{Company}} {{Role}}</title>
+</head>
+<body style="margin:0;padding:0;background:#ffffff;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;">
+<tr><td align="center" style="padding:28px 16px 40px;">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:100%;max-width:600px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;font-size:15px;line-height:1.6;color:#1d2a2e;">
+
+  <!-- Headline -->
+  <tr><td style="padding:0 0 6px;font-family:Georgia,'Times New Roman',serif;font-size:27px;line-height:1.2;color:#1d2a2e;">{{Company}}: {{Role}}</td></tr>
+  <tr><td style="padding:0 0 6px;color:#5b6b70;">{{One sentence: what the role is, where, and the deadline or term.}}</td></tr>
+  <tr><td style="padding:0 0 22px;font-size:13px;color:#5b6b70;">Job posting: <a href="{{posting URL the package was built from}}" style="color:ACCENT;">{{site name, e.g. AllJobs}}</a></td></tr>
+
+  <!-- How to apply: the one bold element -->
+  <tr><td style="padding:16px 20px;background:WASH;border-left:4px solid ACCENT;">
+    <div style="font-family:Georgia,'Times New Roman',serif;font-size:19px;color:ACCENT;padding-bottom:6px;">How to apply</div>
+    <div style="padding-bottom:4px;">{{Where: email address or link, as an <a> styled color:ACCENT}}</div>
+    <div style="padding-bottom:4px;">{{Subject line or form field, if any}}</div>
+    <div>Attach <b>{{Full Name}} - CV - {{Company}}.pdf</b> and <b>{{Full Name}} - CL - {{Company}}.pdf</b>. {{Where the plain-text letter goes, e.g. "Paste the letter into the email body."}}</div>
+  </td></tr>
+
+  <!-- Summary -->
+  <tr><td style="padding:30px 0 8px;font-family:Georgia,'Times New Roman',serif;font-size:21px;color:#1d2a2e;border-bottom:1px solid #d5e1e3;">Summary</td></tr>
+  <tr><td style="padding:12px 0 0;">{{2–4 sentences: the angle the documents take and why the candidate fits.}}</td></tr>
+  <tr><td style="padding:10px 0 0;">{{The hook the letter opens on, in one sentence.}}</td></tr>
+
+  <!-- Next steps: a real sequence, so numbered -->
+  <tr><td style="padding:30px 0 8px;font-family:Georgia,'Times New Roman',serif;font-size:21px;color:#1d2a2e;border-bottom:1px solid #d5e1e3;">Next steps</td></tr>
+  <tr><td style="padding:12px 0 0;">
+    <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+      <!-- repeat -->
+      <tr><td valign="top" style="width:28px;padding:0 0 10px;font-family:Georgia,'Times New Roman',serif;font-size:17px;color:ACCENT;">{{n}}.</td><td style="padding:0 0 10px;">{{Step, imperative, one line. Facts to confirm first, then submit, then prepare.}}</td></tr>
+    </table>
+  </td></tr>
+
+  <!-- Critique -->
+  <tr><td style="padding:30px 0 8px;font-family:Georgia,'Times New Roman',serif;font-size:21px;color:#1d2a2e;border-bottom:1px solid #d5e1e3;">Critique</td></tr>
+  <tr><td style="padding:12px 0 0;color:#5b6b70;">Read by a fresh reviewer that had not seen the documents being written.</td></tr>
+  <tr><td style="padding:12px 0 0;">
+    <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;">
+      <tr>
+        <td style="padding:10px 12px;border:1px solid #d5e1e3;"><div style="font-family:Georgia,'Times New Roman',serif;font-size:24px;color:ACCENT;">{{first}}</div><div style="font-size:13px;color:#5b6b70;">First read</div></td>
+        <td style="padding:10px 12px;border:1px solid #d5e1e3;"><div style="font-family:Georgia,'Times New Roman',serif;font-size:24px;color:ACCENT;">{{final}}</div><div style="font-size:13px;color:#5b6b70;">After edits</div></td>
+        <td style="padding:10px 12px;border:1px solid #d5e1e3;"><div style="font-family:Georgia,'Times New Roman',serif;font-size:24px;color:#1d2a2e;">{{ceiling}}</div><div style="font-size:13px;color:#5b6b70;">Realistic ceiling</div></td>
+      </tr>
+    </table>
+  </td></tr>
+  <tr><td style="padding:16px 0 4px;font-weight:600;">Fixed</td></tr>
+  <tr><td style="padding:0;"><ul style="margin:0;padding:0 0 0 18px;">
+    <li style="padding:0 0 4px;">{{Change made, plain words}}</li><!-- repeat -->
+  </ul></td></tr>
+  <tr><td style="padding:14px 0 4px;font-weight:600;">Still open, your call</td></tr>
+  <tr><td style="padding:0;"><ul style="margin:0;padding:0 0 0 18px;">
+    <li style="padding:0 0 4px;">{{Optional wording change worth considering}}</li><!-- repeat -->
+  </ul></td></tr>
+  <tr><td style="padding:14px 0 4px;font-weight:600;">Not claimed, on purpose</td></tr>
+  <tr><td style="padding:0;">{{The gaps the documents leave open, one sentence, comma-separated.}}</td></tr>
+
+  <!-- Interview prep -->
+  <tr><td style="padding:30px 0 8px;font-family:Georgia,'Times New Roman',serif;font-size:21px;color:#1d2a2e;border-bottom:1px solid #d5e1e3;">Interview prep</td></tr>
+  <tr><td style="padding:12px 0 0;">The attached page has {{N}} likely questions with the answers folded away. Open it in a browser, answer each one out loud, then check.</td></tr>
+  <tr><td style="padding:12px 0 4px;font-weight:600;">Rehearse these first</td></tr>
+  <tr><td style="padding:0;"><ul style="margin:0;padding:0 0 0 18px;">
+    <li style="padding:0 0 4px;">{{Question}} <span style="color:#5b6b70;">{{why it matters, a few words}}</span></li><!-- repeat, 2–3 -->
+  </ul></td></tr>
+  <tr><td style="padding:12px 0 0;">{{The hardest question, and the line to hold.}}</td></tr>
+
+  <!-- Attachments -->
+  <tr><td style="padding:34px 0 0;font-size:13px;color:#5b6b70;border-top:1px solid #d5e1e3;">
+    <div style="padding-top:12px;">Attached: {{Full Name}} - CV - {{Company}}.pdf, {{Full Name}} - CL - {{Company}}.pdf, the cover letter as plain text, and the interview-prep page.</div>
+    <div style="padding-top:8px;">Want something changed? Reply to this email in your own words, or send back a marked-up PDF. The updated files will come back in this thread.</div>
+  </td></tr>
+
+</table>
+</td></tr>
+</table>
+</body>
+</html>

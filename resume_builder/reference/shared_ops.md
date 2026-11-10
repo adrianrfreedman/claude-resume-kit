@@ -21,6 +21,10 @@ Session 3: `/critique output/<Folder>/session_<name>.md`
   → Full package critique → STOP
   → If approved: finalization check → "Package complete in output/<Folder>/"
 
+Optional 4th session, after the package is approved:
+  `/make-interview-prep output/<Folder>/session_<name>.md`
+  -> interview-prep HTML (likely questions + collapsed talking points) -> STOP
+
 If edits needed after critique:
   /clear → /edit-resume output/<Folder>/e2e_<name>_cv.tex output/<Folder>/critique_<name>.md
   /clear → /critique output/<Folder>/session_<name>.md (re-critique)
@@ -108,13 +112,19 @@ The tool is authoritative — never trust mental math for char counts. If the to
 **Steps:**
 1. Verify all expected files exist in `output/<FolderName>/`:
    - `session_<name>.md`
-   - `e2e_<name>_[resume|cv].tex` + `.pdf` + compile artifacts
-   - `e2e_<name>_cover_letter.tex` + `.pdf` + compile artifacts
+   - `e2e_<name>_[resume|cv].html` + `.pdf`
+   - `e2e_<name>_cover_letter.html` + `.pdf` + `.txt`
    - `critique_<name>.md`
-2. Rename final PDFs for submission (derive name from `config.md` Personal Info):
-   - `cp e2e_<name>_[resume|cv].pdf <Firstname>_<Lastname>_[Resume|CV].pdf`
-   - `cp e2e_<name>_cover_letter.pdf <Firstname>_<Lastname>_Cover_Letter.pdf`
-   - Keep originals alongside
+   - `interview_prep_<name>.html` (if generated)
+2. **Copy the final PDFs to their submission names.** Take `<Full Name>` from `config.md` Personal Info:
+   ```bash
+   cp e2e_<name>_[resume|cv].pdf "<Full Name> - CV - <Company>.pdf"
+   cp e2e_<name>_cover_letter.pdf "<Full Name> - CL - <Company>.pdf"
+   ```
+   - **Both resumes and CVs become `- CV`.** The applicant is the same person whatever the document
+     length, and a recruiter's downloads folder should show one name, not a format label.
+   - Copy, do not move — the `e2e_` originals stay alongside as the working files.
+   - These two are the files that get attached to an application. Nothing else in the folder does.
 3. Confirm to user: "Package complete in output/<FolderName>/ — [N] files"
 
 ---

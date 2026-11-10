@@ -6,6 +6,15 @@ This is different. You extract your papers, codebases, and reports once — the 
 
 Built for researchers and engineers with lots of source material (papers, code, reports) who apply to many positions across different employer types.
 
+## About this fork
+
+This is a fork of [claude-resume-kit](https://github.com/ARPeeketi/claude-resume-kit) by Akhil Reddy Peeketi (MIT). The extraction, knowledge-base, resume, cover-letter and critique skills are his work. This fork adds:
+
+- **HTML → PDF output** via headless Chrome (`resume_builder/templates/resume_template.html`, `resume_builder/helpers/render_pdf.sh`). The LaTeX pipeline described below is kept as legacy.
+- **`/make-package`**: resume, cover letter and interview prep in one run, with two fresh-context critique passes, optionally emailed to the candidate.
+- **`/make-interview-prep`** and **`/revise-package`** (applies the edits the candidate emails back and replies in the same thread).
+- **`job_scanner/`**: a scheduled job scanner (Israeli and remote boards plus company career pages, scored by Claude) and an email-driven application tracker. See [`job_scanner/README.md`](job_scanner/README.md).
+
 ---
 
 ## What makes this different
@@ -84,7 +93,7 @@ git clone https://github.com/ARPeeketi/claude-resume-kit.git
 cd claude-resume-kit
 ```
 
-Edit `config.md` with your details (name, email, provenance flags, role types). See `resume_builder/examples/example_config.md` for a complete example.
+Copy `resume_builder/examples/example_config.md` to `config.md` and `CLAUDE.example.md` to `CLAUDE.md`, then edit `config.md` with your details (name, email, provenance flags, role types).
 
 ### 2. Extract your papers
 

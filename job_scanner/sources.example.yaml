@@ -1,0 +1,101 @@
+# Copy to sources.yaml and set your queries.
+# Job board sources for /scan-jobs
+#
+# Each entry is fetched by WebFetch during a run. The skill's instructions
+# tell Claude how to handle each `type`.
+
+sources:
+
+  # --------------------------------------------------------------------------
+  # LinkedIn Jobs — Israel
+  # --------------------------------------------------------------------------
+  - id: linkedin_il
+    type: linkedin
+    enabled: true
+    base_url: "https://www.linkedin.com/jobs/search"
+    location_param: "Israel"
+    f_TPR: "r604800"   # last 7 days
+    queries:
+      - "example query 1"
+      - "example query 2"
+    notes: "Public search URL; LinkedIn may rate-limit. Parse listing cards from returned HTML."
+
+  # --------------------------------------------------------------------------
+  # AllJobs — Israeli, Hebrew+English
+  # --------------------------------------------------------------------------
+  - id: alljobs
+    type: alljobs
+    enabled: true
+    base_url: "https://www.alljobs.co.il/SearchResultsGuest.aspx"
+    queries_he:
+      - "example query 1"
+      - "example query 2"
+    queries_en:
+      - "example query 1"
+      - "example query 2"
+    region_codes: [2, 3]   # 2=TA, 3=Sharon; AllJobs region IDs
+    notes: "Israeli board; bilingual. Many roles cross-posted from LinkedIn."
+
+  # --------------------------------------------------------------------------
+  # Drushim — Israeli, mainstream
+  # --------------------------------------------------------------------------
+  - id: drushim
+    type: drushim
+    enabled: true
+    base_url: "https://www.drushim.co.il/jobs/search/"
+    queries:
+      - "example query 1"
+      - "example query 2"
+    notes: "Mainstream Israeli board, strong for hi-tech and biotech."
+
+  # --------------------------------------------------------------------------
+  # Glassdoor Israel
+  # --------------------------------------------------------------------------
+  - id: glassdoor_il
+    type: glassdoor
+    enabled: false   # HTTP 403 on 2026-05-31 run; anti-scraping. Re-enable if proxy added.
+    base_url: "https://www.glassdoor.com/Job/israel-jobs-SRCH_IL.0,6_IN119.htm"
+    queries:
+      - "example query 1"
+      - "example query 2"
+    notes: "Lower priority — Glassdoor IL coverage is patchy but worth scanning."
+
+  # --------------------------------------------------------------------------
+  # Wellfound (formerly AngelList Talent)
+  # --------------------------------------------------------------------------
+  - id: wellfound
+    type: wellfound
+    enabled: false   # HTTP 403 on 2026-05-31 run; SPA + anti-scraping. Re-enable with proxy/cookies.
+    base_url: "https://wellfound.com/jobs"
+    filters:
+      location: "Israel"
+      remote: true
+    queries:
+      - "example query 1"
+      - "example query 2"
+    notes: "Early-stage; many remote-friendly listings."
+
+  # --------------------------------------------------------------------------
+  # Y Combinator — Work at a Startup
+  # --------------------------------------------------------------------------
+  - id: ycs_workatastartup
+    type: ycs
+    enabled: false   # Empty content on 2026-05-31 run; JS-rendered. Re-enable with Playwright or via YC API.
+    base_url: "https://www.workatastartup.com/jobs"
+    filters:
+      remote_ok: true
+    queries:
+      - "example query 1"
+      - "example query 2"
+    notes: "YC portfolio jobs; remote-friendly bias."
+
+settings:
+  max_jds_per_source: 25
+  max_total_jds: 120
+  min_score_to_email: 50
+  # Case-insensitive regexes; matching unseen titles skip body fetch and scoring.
+  # title_exclude:
+  #   - "account executive|sales development"
+  #   - "\\b(intern|student)\\b"
+  #   - "recruiter|talent acquisition"
+  user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15"

@@ -1,0 +1,34 @@
+# Copy to companies.yaml and list your own companies.
+# Curated company career pages — Israeli biotech, AI-diagnostics, digital-health,
+# beauty-tech, and adjacent companies whose roles fit your bundles.
+#
+# `parser_hint` tells Claude how to fetch listings:
+#   greenhouse        -> boards-api.greenhouse.io/v1/boards/<slug>/jobs (JSON)
+#   lever             -> api.lever.co/v0/postings/<slug>?mode=json     (JSON)
+#   comeet            -> www.comeet.com/jobs/<slug>/<board_id>/         (HTML)
+#   comeet_url        -> use `careers_url` verbatim; it's already the Comeet board URL
+#   workday           -> generic Workday board; scrape HTML
+#   generic           -> careers_url is the company's own HTML page; best-effort
+#   js_render         -> page needs JS execution to reveal listings; invoke
+#                        `job_scanner/render.py <careers_url>` and parse the
+#                        rendered output for embedded ATS-style job links.
+#   linkedin_only     -> the careers page can't be scraped via WebFetch (Cloudflare,
+#                        JS-only, or no public board). Fall back to a LinkedIn
+#                        keyword search using the company name.
+#
+# Optional fields:
+#   slug              -> override the ATS slug (otherwise derived from careers_url).
+#                        Use for greenhouse / lever / comeet hints when the
+#                        public-facing URL slug differs from the ATS slug.
+
+companies:
+
+  - name: Example Greenhouse Co
+    careers_url: "https://boards.greenhouse.io/examplecompany"
+    parser_hint: "greenhouse"
+    tags: [example]
+
+  - name: Example LinkedIn-only Co
+    careers_url: "https://www.example.com/careers"
+    parser_hint: "linkedin_only"
+    tags: [example]

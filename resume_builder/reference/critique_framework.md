@@ -141,6 +141,7 @@ Read the resume/CV from five different personas, in order. Each persona sees onl
 - **Provenance flags:** All works-in-progress or under-review items properly flagged?
 - **Verb discipline:** Contributing-author bullets use hedged verbs? Full-ownership verbs only where justified?
 - **Publication coherence:** Do pub tags match the resume's domain framing? Do paper titles (which can't be changed) create cognitive dissonance with the reframed bullets?
+- **Publication tag axis:** Are ALL tags on the same axis? A topic tag ("Machine learning", "Biomarkers") sitting among authorship tags ("First author", "Co-first author") breaks the column a reader scans for credit, and reads as a capability claim in the one place they are checking claims. Any authorship tag must match the author position in `pub_metadata.md`.
 - **Internal consistency:** Does the summary match the bullets? Does the cover letter match the resume?
 - **Over-saturation:** Any keyword repeated >8 times? (Borderline at 6-8, concern at 9+)
 
@@ -210,6 +211,8 @@ For each reader, give a probability estimate (e.g., "80% forward") and the singl
 ## Part 4: Actionable Improvements (Ranked)
 
 List ALL identified improvements in three tiers:
+
+> **Keyword-insertion guard (MANDATORY).** Before recommending that a JD phrase be added to the resume, verify the candidate has actually done the thing the phrase names, using `resume_builder/experience/` as the test. A phrase that describes an adjacent activity is not a licence to adopt the JD's noun for it. Benchmarking two methods is not "prioritizing assets"; assessing a technology is not "due diligence". If the phrase does not survive that test, record it as an unbridgeable gap, not as a Tier 1 fix. Accuracy > ATS is not negotiable at this step, and this is the step where it is most often lost.
 
 ### Tier 1: HIGH IMPACT (each worth >= 1 point)
 These are the improvements that move the score meaningfully. Typically:

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>you.job-scanner</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/path/to/claude-resume-kit/job_scanner/launchd/run-scan.sh</string>
+  </array>
+
+  <!-- Twice weekly at strategic times for the IL job market:
+       Sunday 11:00 local (start of the IL workweek; catches Fri/Sat backlog)
+       Wednesday 11:00 local (midweek catch; postings are still fresh) -->
+  <key>StartCalendarInterval</key>
+  <array>
+    <dict><key>Weekday</key><integer>0</integer><key>Hour</key><integer>11</integer><key>Minute</key><integer>0</integer></dict>
+    <dict><key>Weekday</key><integer>3</integer><key>Hour</key><integer>11</integer><key>Minute</key><integer>0</integer></dict>
+  </array>
+
+  <key>StandardOutPath</key>
+  <string>/path/to/claude-resume-kit/job_scanner/state/runs/launchd.out.log</string>
+
+  <key>StandardErrorPath</key>
+  <string>/path/to/claude-resume-kit/job_scanner/state/runs/launchd.err.log</string>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>HOME</key>
+    <string>/Users/you</string>
+    <key>LANG</key>
+    <string>en_US.UTF-8</string>
+  </dict>
+
+  <key>WorkingDirectory</key>
+  <string>/path/to/claude-resume-kit</string>
+
+  <key>RunAtLoad</key>
+  <false/>
+</dict>
+</plist>

@@ -4,6 +4,13 @@
 
 ---
 
+## Mail (job scanner and tracker)
+
+- **Sender:** you@example.com
+- **Keychain service:** job-scanner-gmail
+
+---
+
 ## Personal Info
 
 - **Name:** Jordan Chen

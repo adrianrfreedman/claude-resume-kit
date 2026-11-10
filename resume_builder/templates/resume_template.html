@@ -1,0 +1,290 @@
+<!doctype html>
+<!--
+  Shared resume template — HTML → PDF pipeline.
+  Per JD: copy this file to output/<Folder>/e2e_<name>_resume.html, then
+    1. Set --accent / --accent-soft to suit the target (medical=teal, biotech=brown, etc.)
+    2. Fill every <!-- FILL --> block with tailored content. Delete unused rows/roles.
+    3. Render + verify:  bash resume_builder/helpers/render_pdf.sh output/<Folder>/e2e_<name>_resume.html
+    4. Read the produced .pdf. Adjust content until page count is right and pages are ~full.
+  There is NO char-count gate — you SEE the result. Fill/trim by looking, not by predicting.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title><!-- FILL: Name, Suffix — Role (Company) --></title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --body: #2c2c2c;
+    --muted: #6b6b6b;
+    --rule: #d8d4cc;
+    --accent: #6b4423;       /* JD-tunable: teal #10707a (medical), brown #6b4423 (biotech), navy #24406b */
+    --accent-soft: #b08968;  /* lighter partner of --accent */
+    --paper: #faf8f4;
+    --paper-edge: #f3eee5;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--paper-edge); color: var(--body); }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  .sheet {
+    max-width: 880px;
+    margin: 32px auto;
+    background: var(--paper);
+    padding: 64px 72px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 32px rgba(0,0,0,0.06);
+    border-radius: 2px;
+  }
+
+  /* ── Header ─────────────────────────────────────────── */
+  header { margin-bottom: 28px; }
+  h1 {
+    font-weight: 600;
+    font-size: 36pt;
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+    color: var(--ink);
+    margin: 0 0 10px;
+  }
+  h1 .suffix { font-weight: 300; color: var(--accent-soft); }
+  .tagline {
+    font-size: 11pt;
+    color: var(--accent);
+    margin: 0 0 20px;
+    line-height: 1.45;
+  }
+  .contact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    font-size: 9.5pt;
+    color: var(--muted);
+    padding-top: 14px;
+    border-top: 1px solid var(--rule);
+  }
+  .contact a { color: var(--muted); text-decoration: none; border-bottom: 1px dotted var(--accent-soft); }
+  .contact a:hover { color: var(--accent); }
+  .contact .item { display: inline-flex; align-items: center; }
+  .contact .item + .item::before {
+    content: "";
+    width: 4px; height: 4px;
+    background: var(--accent-soft);
+    border-radius: 50%;
+    margin-right: 18px;
+    align-self: center;
+  }
+
+  /* ── Sections ───────────────────────────────────────── */
+  section { margin-top: 26px; }
+  h2 {
+    font-weight: 600;
+    font-size: 9pt;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--accent);
+    margin: 0 0 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--rule);
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  .summary { font-size: 10.5pt; color: var(--body); line-height: 1.6; max-width: 74ch; }
+
+  /* Competencies grid */
+  .skills { display: grid; grid-template-columns: 200px 1fr; gap: 10px 28px; }
+  .skill-label {
+    font-size: 10pt;
+    color: var(--accent);
+    font-weight: 500;
+    padding-top: 1px;
+  }
+  .skill-body { font-size: 10pt; color: var(--body); line-height: 1.55; }
+  .skill-row { display: contents; }
+  .skill-row .skill-label, .skill-row .skill-body { padding-bottom: 8px; border-bottom: 1px dotted var(--rule); }
+  .skill-row:last-child .skill-label, .skill-row:last-child .skill-body { border-bottom: none; padding-bottom: 0; }
+
+  /* Experience */
+  .role { margin-bottom: 20px; }
+  .role-head, .role-org { page-break-after: avoid; break-after: avoid; }
+  .role:last-child { margin-bottom: 0; }
+  .role-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 2px;
+  }
+  .role-title {
+    font-weight: 600;
+    font-size: 11pt;
+    color: var(--ink);
+    line-height: 1.3;
+  }
+  .sep {
+    color: var(--accent-soft);
+    font-weight: 400;
+    margin: 0 6px;
+  }
+  .role-date {
+    font-size: 9pt;
+    color: var(--muted);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
+  }
+  .role-org {
+    font-size: 9.5pt;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .role ul { margin: 0; padding: 0; list-style: none; }
+  .role li {
+    position: relative;
+    padding-left: 18px;
+    margin: 4px 0;
+    line-height: 1.5;
+    font-size: 10pt;
+  }
+  .role li::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 0.6em;
+    width: 8px; height: 1px;
+    background: var(--accent-soft);
+  }
+
+  /* Education */
+  .edu-row { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding: 8px 0; border-top: 1px dotted var(--rule); }
+  .edu-row:first-child { border-top: none; padding-top: 0; }
+  .edu-degree { font-size: 11pt; color: var(--ink); font-weight: 600; }
+  .edu-inst { font-size: 9.5pt; color: var(--muted); margin-top: 2px; }
+  .edu-date { font-size: 9pt; color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; letter-spacing: 0.04em; }
+
+  /* Publications */
+  .pub { font-size: 9.75pt; line-height: 1.5; margin: 10px 0; padding-left: 18px; position: relative; }
+  .pub::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 0.55em;
+    width: 8px; height: 1px;
+    background: var(--accent-soft);
+  }
+  .pub-tag {
+    display: inline-block;
+    font-size: 8.5pt;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    background: rgba(107,68,35,0.12);   /* match --accent at ~12% alpha */
+    padding: 1px 7px;
+    border-radius: 3px;
+    margin-right: 6px;
+    vertical-align: 1px;
+  }
+  .pub .venue { color: var(--accent); font-weight: 500; }
+
+  @media print {
+    @page { size: A4; margin: 10mm 14mm; background: white; }
+    html, body { background: white !important; font-size: 9.5pt; line-height: 1.45; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .sheet { box-shadow: none; margin: 0; padding: 0; max-width: 100%; background: white !important; }
+    h1 { font-size: 26pt; margin-bottom: 6px; }
+    .tagline { font-size: 10pt; margin-bottom: 12px; }
+    .contact { padding-top: 8px; font-size: 8.5pt; gap: 10px; }
+    header { margin-bottom: 16px; }
+    section { margin-top: 14px; }
+    h2 { font-size: 8pt; margin-bottom: 8px; padding-bottom: 5px; }
+    .summary { font-size: 9.5pt; line-height: 1.5; }
+    .skills { gap: 5px 22px; }
+    .skill-label, .skill-body { font-size: 9.5pt; }
+    .skill-row .skill-label, .skill-row .skill-body { padding-bottom: 5px; }
+    .role { margin-bottom: 12px; }
+    .role-title { font-size: 10pt; }
+    .role-org { font-size: 9pt; margin-bottom: 4px; }
+    .role li { font-size: 9.5pt; margin: 2px 0; line-height: 1.4; }
+    .edu-row { padding: 5px 0; }
+    .edu-degree { font-size: 10pt; }
+    .edu-inst { font-size: 9pt; }
+    .pub { font-size: 9pt; margin: 6px 0; line-height: 1.4; }
+    .pub-tag { font-size: 7.5pt; }
+    a { color: inherit; border-bottom: none; }
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <header>
+    <h1><!-- FILL: First Last --><span class="suffix"> · <!-- FILL: suffix, e.g. Ph.D. --></span></h1>
+    <p class="tagline"><!-- FILL: two JD-tuned themes, e.g. Clinical-AI Evaluation&nbsp;·&nbsp;Medical Dataset Validation --></p>
+    <div class="contact">
+      <span class="item"><a href="mailto:EMAIL"><!-- FILL: email --></a></span>
+      <span class="item"><!-- FILL: phone --></span>
+      <span class="item"><!-- FILL: location --></span>
+    </div>
+  </header>
+
+  <section>
+    <h2>Professional Summary</h2>
+    <!-- FILL: 4-6 sentence summary, JD-framed. Use <em> for journal/product names. -->
+    <p class="summary"></p>
+  </section>
+
+  <section>
+    <h2>Core Competencies</h2>
+    <div class="skills">
+      <!-- FILL: 5 skill-rows. Label = JD-facing capability; body = ' · '-separated evidence. -->
+      <div class="skill-row">
+        <div class="skill-label"></div>
+        <div class="skill-body"></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Research Experience</h2>
+    <!-- FILL: one .role per position. Bold .role-title = JD-themed; .role-org = formal role · institution. -->
+    <div class="role">
+      <div class="role-head">
+        <div class="role-title"></div>
+        <div class="role-date"></div>
+      </div>
+      <div class="role-org"></div>
+      <ul>
+        <li></li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>Education</h2>
+    <!-- FILL: edu-rows (FIXED content — copy from config/prior resume). -->
+    <div class="edu-row">
+      <div>
+        <div class="edu-degree"></div>
+        <div class="edu-inst"></div>
+      </div>
+      <div class="edu-date"></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Selected Publications</h2>
+    <!-- FILL: pubs ordered by JD relevance. .pub-tag = authorship/relevance; check config.md Provenance Flags. -->
+    <div class="pub">
+      <span class="pub-tag"></span>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>
