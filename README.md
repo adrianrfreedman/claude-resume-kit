@@ -64,23 +64,33 @@ Each step uses a **separate Claude Code session** for best quality (fresh contex
 ## Prerequisites
 
 - **[Claude Code](https://docs.anthropic.com/en/docs/claude-code)** CLI installed and authenticated
-- **A LaTeX distribution** for compiling `.tex` to `.pdf` (e.g., [TeX Live](https://tug.org/texlive/), [MacTeX](https://tug.org/mactex/), [MiKTeX](https://miktex.org/))
-- **Your research papers** or project documentation ready for extraction
+- **Google Chrome or Chromium**: resumes and letters are HTML rendered to PDF with headless Chrome (`resume_builder/helpers/render_pdf.sh`). `pdfinfo` (poppler) is optional, for exact page counts.
+- **Your source material**: papers, code, reports or project write-ups to extract from
+- For the optional job scanner and tracker: **macOS** (launchd, Keychain), Python 3 with PyYAML, and a Gmail account with an app password
 
 ---
 
 ## Try it first (5 minutes)
 
-Want to see what it does before extracting your own papers? The repo includes a complete example knowledge base for a fictional researcher:
+The repo ships a complete example knowledge base for a fictional researcher, Dr. Jordan Chen, plus a matching job description. Copy it into place in a throwaway clone and run the resume pipeline:
 
 ```bash
-git clone https://github.com/ARPeeketi/claude-resume-kit.git
-cd claude-resume-kit
+git clone https://github.com/adrianrfreedman/claude-resume-kit.git resume-kit-demo
+cd resume-kit-demo
+cp resume_builder/examples/example_config.md config.md
+cp CLAUDE.example.md CLAUDE.md
+cp resume_builder/examples/experience/*.md resume_builder/experience/
+cp resume_builder/examples/bundles/*.md resume_builder/bundles/
 claude
+```
+
+Then, inside Claude Code:
+
+```
 /make-resume JDs/example_jd.txt
 ```
 
-This runs the full pipeline — JD analysis, bullet selection, LaTeX generation — using the included example data. No setup required.
+It analyses the JD, plans which bullets to use, asks you to confirm the plan, then writes the resume as HTML and renders it to PDF under `output/<Folder>/`. Delete the demo clone when you're done; your real setup starts from a fresh one.
 
 ---
 
@@ -89,21 +99,23 @@ This runs the full pipeline — JD analysis, bullet selection, LaTeX generation 
 ### 1. Clone and configure
 
 ```bash
-git clone https://github.com/ARPeeketi/claude-resume-kit.git
+git clone https://github.com/adrianrfreedman/claude-resume-kit.git
 cd claude-resume-kit
+cp resume_builder/examples/example_config.md config.md
+cp CLAUDE.example.md CLAUDE.md
 ```
 
-Copy `resume_builder/examples/example_config.md` to `config.md` and `CLAUDE.example.md` to `CLAUDE.md`, then edit `config.md` with your details (name, email, provenance flags, role types).
+Edit `config.md`: Personal Info, Document Preferences, Provenance Flags (what is published, under review or internal), Role Types and the FIXED Sections (education, awards, publications). `resume_builder/examples/example_config.md` is a filled-in example. `config.md`, `CLAUDE.md` and everything you add under `knowledge_base/`, `resume_builder/{experience,bundles,support}/`, `JDs/` and `output/` are gitignored, so your data stays local.
 
-### 2. Extract your papers
+### 2. Extract your source material
 
-Place PDFs or `.tex` source files in `knowledge_base/papers/`, then:
+Put papers (PDF or `.tex`) in `knowledge_base/papers/` and anything else (code write-ups, reports, notes) in `knowledge_base/notes/`, then, one file at a time:
 
 ```
 /setup-extract knowledge_base/papers/my_paper.pdf
 ```
 
-Claude reads the paper, asks clarifying questions about your contributions, and creates a structured extraction. Repeat for each paper.
+Claude reads the file, asks what exactly you did on it, and writes a structured extraction to `knowledge_base/extractions/`.
 
 ### 3. Build your knowledge base
 
@@ -111,19 +123,31 @@ Claude reads the paper, asks clarifying questions about your contributions, and 
 /setup-build-kb
 ```
 
-This synthesizes all extractions into experience files, role-type bundles, and support files.
+This turns the extractions into one experience file per position, a bundle per target role type, and support files (skills taxonomy and the like).
 
-### 4. Customize your LaTeX templates
+### 4. Generate for a job
 
-Open the templates in `resume_builder/templates/` and fill in your FIXED sections — education, header, awards, publications. The `[CONFIG: ...]` placeholders show you what to fill in.
+Save the job description to `JDs/`, then run the whole package in one session:
 
-### 5. Generate for a job
+```
+/make-package JDs/target_job.txt
+```
+
+It writes the resume, has a fresh-context subagent critique it and applies the fixes, writes the cover letter, critiques again (fixing anything critical), then builds an interview-prep page. It stops to ask you at the same gates the individual skills do. Everything lands in `output/<Folder>/`, including submission copies named `<Full Name> - CV - <Company>.pdf` and `<Full Name> - CL - <Company>.pdf`.
+
+To run the steps one at a time instead (`<session>` is `output/<Folder>/session_<name>.md`):
 
 ```
 /make-resume JDs/target_job.txt
+/critique <session>
+/edit-resume <resume file> <critique file>
+/make-cl <session>
+/make-interview-prep <session>
 ```
 
-Then in separate sessions: `/make-cl` for the cover letter, `/critique` for a scored review.
+### 5. Optional: job scanner and application tracker (macOS)
+
+`job_scanner/` scans job boards and company career pages twice a week, scores each posting against your bundles with Claude and emails a ranked digest. The tracker reads your replies and forwarded company emails to keep a list of your applications, and sends a daily summary. `/make-package` can also email the finished package. Setup is in [`job_scanner/README.md`](job_scanner/README.md); the scheduled jobs are installed with [`job_scanner/launchd/README.md`](job_scanner/launchd/README.md).
 
 ---
 
