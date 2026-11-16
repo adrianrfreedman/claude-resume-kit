@@ -6,6 +6,7 @@
     2. Fill every <!-- FILL --> block with tailored content. Delete unused rows/roles.
     3. Render + verify:  bash resume_builder/helpers/render_pdf.sh output/<Folder>/e2e_<name>_resume.html
     4. Read the produced .pdf. Adjust content until page count is right and pages are ~full.
+  An optional "Projects" / "Open Source" section can follow Experience, using the same .role markup.
   There is NO char-count gate — you SEE the result. Fill/trim by looking, not by predicting.
 -->
 <html lang="en">
@@ -224,7 +225,7 @@
 <div class="sheet">
 
   <header>
-    <h1><!-- FILL: First Last --><span class="suffix"> · <!-- FILL: suffix, e.g. Ph.D. --></span></h1>
+    <h1><!-- FILL: First Last --><!-- Delete the suffix span when config.md Degree suffix is empty. --><span class="suffix"> · <!-- FILL: suffix, e.g. Ph.D. --></span></h1>
     <p class="tagline"><!-- FILL: two JD-tuned themes, e.g. Clinical-AI Evaluation&nbsp;·&nbsp;Medical Dataset Validation --></p>
     <div class="contact">
       <span class="item"><a href="mailto:EMAIL"><!-- FILL: email --></a></span>
@@ -251,7 +252,7 @@
   </section>
 
   <section>
-    <h2>Research Experience</h2>
+    <h2>Experience</h2>
     <!-- FILL: one .role per position. Bold .role-title = JD-themed; .role-org = formal role · institution. -->
     <div class="role">
       <div class="role-head">
@@ -278,6 +279,7 @@
   </section>
 
   <section>
+    <!-- Keep only if config.md FIXED Sections lists Publications; otherwise delete this section. -->
     <h2>Selected Publications</h2>
     <!-- FILL: pubs ordered by JD relevance. .pub-tag = authorship/relevance; check config.md Provenance Flags. -->
     <div class="pub">

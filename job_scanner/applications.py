@@ -1,8 +1,9 @@
 """Application tracker store: state/applications.json, a JSON list of application dicts.
 
 Application: {id, company, role, [job_url, scan_id, package, summary], events: [...]}
-Event: {date, type, note, message_id, recorded}  (recorded = local ISO time added; absent on old events;
-auto = true on applied events the tracker inserted itself; their date may move earlier)
+Event: {date, type, note, message_id, recorded, [when]}  (recorded = local ISO time added; absent on old events;
+auto = true on applied events the tracker inserted itself; their date may move earlier;
+when = the interview's own date/time, local Israel wall time, YYYY-MM-DD or YYYY-MM-DDTHH:MM; interviewing events only)
 """
 
 from __future__ import annotations
@@ -82,7 +83,8 @@ def create(apps: list[dict], company: str, role: str, **fields) -> dict:
     return app
 
 
-def add_event(app: dict, date: str, type: str, note: str = "", message_id: str | None = None, auto: bool = False) -> bool:
+def add_event(app: dict, date: str, type: str, note: str = "", message_id: str | None = None, auto: bool = False,
+              when: str | None = None) -> bool:
     if type not in EVENT_TYPES:
         raise ValueError(f"unknown event type: {type!r}")
     if message_id and any(
@@ -95,6 +97,8 @@ def add_event(app: dict, date: str, type: str, note: str = "", message_id: str |
     })
     if auto:
         app["events"][-1]["auto"] = True
+    if when:
+        app["events"][-1]["when"] = when
     for e in app["events"]:  # an auto-inserted applied never postdates a later-added event
         if e.get("auto") and e["type"] == "applied" and e["date"] > date:
             e["date"] = date

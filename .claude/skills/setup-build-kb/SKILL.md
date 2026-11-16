@@ -28,7 +28,7 @@ Parse `$ARGUMENTS`:
 
 **Pre-flight check:**
 - If `_INVENTORY.md` is empty or has no entries: "No extractions found. Run `/setup-extract` first." Stop.
-- If fewer than 2 extractions: warn "Only [N] extraction(s) found. KB quality improves with more papers. Continue anyway?"
+- If fewer than 2 extractions: warn "Only [N] extraction(s) found. KB quality improves with more sources. Continue anyway?"
 
 Progress: "Found [N] extractions across [M] positions. Config has [K] role types defined."
 
@@ -42,8 +42,8 @@ Progress: "Found [N] extractions across [M] positions. Config has [K] role types
 
 **For each position** (from `config.md` or inferred from extraction metadata):
 
-1. Group extractions by the position they belong to (based on dates, institution, or user clarification)
-2. Ask the user to confirm grouping if ambiguous: "I've grouped these papers under [Position]. Correct?"
+1. Group extractions (sources) by the position they belong to (based on dates, institution, or user clarification)
+2. Ask the user to confirm grouping if ambiguous: "I've grouped these sources under [Position]. Correct?"
 
 **Experience file format** (`resume_builder/experience/experience_<position_key>.md`):
 
@@ -59,7 +59,7 @@ Progress: "Found [N] extractions across [M] positions. Config has [K] role types
 
 ### Achievement [ID]: [Short Title]
 **Source:** [extraction filename]
-**Paper:** [citation or "internal"/"unpublished"]
+**Paper:** [citation, or "internal"/"unpublished"/"n/a"]
 **User's role:** [first author / contributing / sole developer]
 **Status:** [published / under review / draft / internal]
 
@@ -129,6 +129,8 @@ Progress: "Built taxonomy — [N] skills across [M] categories"
 ## Phase 3: Build Publication Metadata
 
 **Goal:** Structured pub data for resume/CV generation.
+
+**Run only if there are paper extractions.** Otherwise skip and say: "No paper extractions found; skipping publication metadata."
 
 **Build** `resume_builder/support/pub_metadata.md`:
 
@@ -308,7 +310,7 @@ After all phases complete (or after the requested subset), present:
 |-----------|------|--------|-------|
 | Experience files | `experience/*.md` | [DONE/MISSING] | [N achievements] |
 | Skills taxonomy | `support/skills_taxonomy.md` | [DONE/MISSING] | [N skills] |
-| Pub metadata | `support/pub_metadata.md` | [DONE/MISSING] | [N pubs] |
+| Pub metadata | `support/pub_metadata.md` | [DONE/SKIPPED/MISSING] | [N pubs] |
 | Reframing guide | `support/achievement_reframing_guide.md` | [DONE/MISSING] | [N entries] |
 | Bundles | `bundles/bundle_*.md` | [DONE/MISSING] | [N bundles] |
 | Significance | `support/significance_*.md` | [DONE/MISSING] | [N files] |
@@ -317,7 +319,7 @@ After all phases complete (or after the requested subset), present:
 - [ ] At least 1 experience file with 5+ achievements
 - [ ] Skills taxonomy with 20+ skills
 - [ ] At least 1 bundle matching a target role type
-- [ ] Pub metadata complete
+- [ ] Pub metadata complete (or skipped: no papers)
 - [ ] Reframing guide covers all achievements
 - [ ] Significance files for cover letter depth
 

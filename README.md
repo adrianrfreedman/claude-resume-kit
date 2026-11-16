@@ -13,7 +13,8 @@ This is a fork of [claude-resume-kit](https://github.com/ARPeeketi/claude-resume
 - **HTML → PDF output** via headless Chrome (`resume_builder/templates/resume_template.html`, `resume_builder/helpers/render_pdf.sh`). The LaTeX pipeline described below is kept as legacy.
 - **`/make-package`**: resume, cover letter and interview prep in one run, with two fresh-context critique passes, optionally emailed to the candidate.
 - **`/make-interview-prep`** and **`/revise-package`** (applies the edits the candidate emails back and replies in the same thread).
-- **`job_scanner/`**: a scheduled job scanner (Israeli and remote boards plus company career pages, scored by Claude) and an email-driven application tracker. See [`job_scanner/README.md`](job_scanner/README.md).
+- **Non-academic profiles**: works for industry roles too, with an industry example config (`resume_builder/examples/example_config_industry.md`).
+- **`job_scanner/`**: a scheduled job scanner (Israeli and remote boards plus company career pages, scored by Claude) and an email-driven application tracker, with an optional Google Sheet mirror. See [`job_scanner/README.md`](job_scanner/README.md).
 
 ---
 
@@ -94,6 +95,23 @@ It analyses the JD, plans which bullets to use, asks you to confirm the plan, th
 
 ---
 
+## Not an academic?
+
+The kit works the same for industry roles; only the inputs and the config differ.
+
+| | Academic | Industry |
+|---|---|---|
+| Inputs | Papers, reports | CV, LinkedIn export, one write-up per job or project, repos |
+| Role Types | Academic, Industry R&D | e.g. Senior Backend Engineer, Platform Engineer, Engineering Lead |
+| Role-Type Decision Tree | Maps JD terms like faculty, NSF, biotech | Maps JD terms like Kubernetes, SRE, tech lead, Series A |
+| FIXED Sections | Education, Publications, Honors, header | Education + header only |
+| Provenance Flags | Paper status (published, under review) | Confidential client names, unshipped work, NDA metrics |
+| Template headings | Experience, Selected Publications | "Experience"; publications section dropped, optional Projects / Open Source |
+
+Start from `resume_builder/examples/example_config_industry.md`.
+
+---
+
 ## Full Setup
 
 ### 1. Clone and configure
@@ -109,13 +127,13 @@ Edit `config.md`: Personal Info, Document Preferences, Provenance Flags (what is
 
 ### 2. Extract your source material
 
-Put papers (PDF or `.tex`) in `knowledge_base/papers/` and anything else (code write-ups, reports, notes) in `knowledge_base/notes/`, then, one file at a time:
+Put papers (PDF or `.tex`) **or** your CV, LinkedIn export, project write-ups and code/repo notes in `knowledge_base/papers/` (papers) or `knowledge_base/notes/` (everything else), then, one file at a time:
 
 ```
 /setup-extract knowledge_base/papers/my_paper.pdf
 ```
 
-Claude reads the file, asks what exactly you did on it, and writes a structured extraction to `knowledge_base/extractions/`.
+Claude reads the file, asks what exactly you did on it (and the publication status, if it is a paper), and writes a structured extraction to `knowledge_base/extractions/`.
 
 ### 3. Build your knowledge base
 

@@ -7,13 +7,14 @@ from __future__ import annotations
 
 import colorsys
 import html as _h
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
 import applications as A
 from send_digest import ALIAS
 
 SECTIONS = ["interviewing", "offer", "acknowledged", "applied", "prepared", "ghosted"]
 CLOSED_DAYS = 30
+CAL_WEEKS = 4  # week rows in the interview calendar grid
 FULL_ROWS = 5  # rows per section shown in full; the rest are compact
 INK, MUTED, RULE, ACCENT, WASH = "#1d2a2e", "#5b6b70", "#d5e1e3", "#0f5c6e", "#eef5f6"
 SERIF = "Georgia,'Times New Roman',serif"
@@ -35,6 +36,7 @@ HOWTO = [
     ("Any other news?", "Reply to this digest in your own words, e.g. “withdrew from Veeva” "
                         "or “Roche called, interview Tuesday”."),
     ("Changes to a CV or letter?", "Reply to that package’s email; the updated files come back in the same thread."),
+    ("Interview booked?", "Reply with the date and time, or forward the invitation; it shows up in the calendar at the top."),
     None,
     ("Colours", "show days since you last heard anything: green is fresh, red is 30 days or more. "
                 "After 30 days with no news, an application is marked Ghosted. Any news brings it back."),
@@ -158,6 +160,32 @@ def _groups(apps: list[dict], today: date, since: datetime) -> list[tuple[str, l
     return out
 
 
+def _last_interview(app: dict) -> dict | None:
+    return next((ev for ev in reversed(app["events"]) if ev["type"] == "interviewing"), None)
+
+
+def upcoming_interviews(apps: list[dict], today: date) -> tuple[list[dict], list[dict]]:
+    """(dated, undated): the latest interview slot per open app, from today on."""
+    dated, undated = [], []
+    for app in apps:
+        st = A.status(app, today)
+        if st in A.CLOSED:
+            continue
+        slots = [ev for ev in app["events"] if ev["type"] == "interviewing" and ev.get("when")]
+        if slots:
+            w = slots[-1]["when"]
+            day = date.fromisoformat(w[:10])
+            if day >= today:
+                dated.append(dict(day=day, time=w[11:16], co=app["company"], role=app["role"],
+                                  note=(slots[-1].get("note") or "").strip()))
+        elif st == "interviewing":
+            last = _last_interview(app)
+            undated.append(dict(co=app["company"], role=app["role"], note=((last or {}).get("note") or "").strip()))
+    dated.sort(key=lambda r: (r["day"], r["time"], r["co"].lower()))
+    undated.sort(key=lambda r: r["co"].lower())
+    return dated, undated
+
+
 def _tags(r: dict) -> list[str]:
     if r["fwd"]:
         return ["New, from a forwarded email"]
@@ -223,9 +251,66 @@ def _cell(inner: str, pad: str = "0 0 18px 0") -> str:
     return f'<tr><td style="padding:{pad};">{inner}</td></tr>\n'
 
 
-def _html(today, news, groups, closed, revised, unusable) -> str:
+def _agenda_when(r: dict) -> str:
+    d = r["day"]
+    return f"{d:%a} {d.day} {d:%b}" + (f", {r['time']}" if r["time"] else "")
+
+
+def _cal_cell(day: date, today: date, items: list[dict]) -> str:
+    label = f"{day.day} {day:%b}" if day.day == 1 else str(day.day)
+    if day == today:
+        num = f"font-weight:bold;color:{INK}"
+    else:
+        num = f"color:{'#b8c4c7' if day < today else MUTED}"
+    bg = f"background:{WASH};" if day == today or items else ""
+    inner = "".join(
+        f'<div style="font-size:11px;font-weight:bold;color:{ACCENT};word-break:break-word;padding-top:2px;">'
+        f'{e(it["time"] + " " if it["time"] else "")}{e(it["co"])}</div>' for it in items)
+    return (f'<td valign="top" style="{bg}border:1px solid {RULE};padding:4px;height:44px;">'
+            f'<div style="font-size:11px;{num};">{e(label)}</div>{inner}</td>')
+
+
+def _calendar(today: date, dated: list[dict]) -> str:
+    start = today - timedelta(days=(today.weekday() + 1) % 7)  # Sunday
+    last = dated[-1]["day"]
+    weeks = min(CAL_WEEKS, max(1, (last - start).days // 7 + 1))
+    by_day = {}
+    for r in dated:
+        by_day.setdefault(r["day"], []).append(r)
+    head = "".join(f'<td align="center" style="font-size:11px;color:{MUTED};padding:0 0 3px;">{n}</td>'
+                   for n in ("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"))
+    rows = "".join(
+        "<tr>" + "".join(_cal_cell(d, today, by_day.get(d, []))
+                         for d in (start + timedelta(days=7 * w + i) for i in range(7))) + "</tr>"
+        for w in range(weeks))
+    return (f'<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" '
+            f'style="table-layout:fixed;border-collapse:collapse;"><tr>{head}</tr>{rows}</table>')
+
+
+def _upcoming_html(today: date, dated: list[dict], undated: list[dict]) -> str:
+    n = len(dated) + len(undated)
+    head = (f'<div style="font-family:{SERIF};font-size:19px;color:{INK};border-bottom:1px solid {RULE};'
+            f'padding-bottom:4px;margin-bottom:8px;">Upcoming interviews <span style="color:{MUTED};">{n}</span></div>')
+    body = _calendar(today, dated) if dated else ""
+    if dated:
+        lines = ""
+        for r in dated:
+            note = f'<div style="font-size:13px;color:{MUTED};">{e(r["note"])}</div>' if r["note"] else ""
+            lines += (f'<div style="padding-top:8px;font-size:15px;color:{INK};"><b>{e(_agenda_when(r))}</b> '
+                      f'{e(A.who(r["co"], r["role"]))}{note}</div>')
+        body += f'<div style="padding-top:2px;">{lines}</div>'
+    if undated:
+        names = ", ".join(A.who(r["co"], r["role"]) for r in undated)
+        body += (f'<div style="font-size:13px;color:{MUTED};padding-top:10px;">No date recorded: {e(names)}. '
+                 f'Reply with the date and time and it will appear here.</div>')
+    return head + body
+
+
+def _html(today, news, groups, closed, revised, unusable, dated=(), undated=(), sheet_url=None) -> str:
     b = _cell(f'<div style="font-family:{SERIF};font-size:26px;color:{INK};">Application tracker</div>'
               f'<div style="font-size:13px;color:{MUTED};padding-top:2px;">{today:%A} {today.day} {today:%B %Y}</div>', "0 0 20px 0")
+    if sheet_url:
+        b += _cell(f'<a href="{e(sheet_url, quote=True)}" style="font-size:14px;color:{ACCENT};">Open the tracker sheet</a>', "0 0 18px 0")
     if news:
         body = ('<ul style="margin:0;padding:0 0 0 18px;">'
                 + "".join(f'<li style="padding:0 0 4px;font-size:15px;line-height:1.5;color:{INK};">{e(n)}</li>' for n in news)
@@ -233,6 +318,8 @@ def _html(today, news, groups, closed, revised, unusable) -> str:
     else:
         body = f'<p style="margin:0;font-size:15px;line-height:1.5;color:{INK};">No news since the last digest.</p>'
     b += _cell(f'<div style="font-family:{SERIF};font-size:19px;color:{INK};padding-bottom:6px;">What’s new</div>{body}', "0 0 22px 0")
+    if dated or undated:
+        b += _cell(_upcoming_html(today, list(dated), list(undated)), "0 0 22px 0")
     b += "".join(_section(st, items) for st, items in groups)
     if closed:
         b += _cell(f'<div style="font-size:13px;color:{MUTED};">{e(closed)}</div>')
@@ -260,9 +347,19 @@ def _html(today, news, groups, closed, revised, unusable) -> str:
             f'</table></td></tr></table></body></html>')
 
 
-def _text(today, news, groups, closed, revised, unusable) -> str:
-    L = [f"Application tracker, {today:%A} {today.day} {today:%B %Y}", "", "What's new"]
+def _text(today, news, groups, closed, revised, unusable, dated=(), undated=(), sheet_url=None) -> str:
+    L = [f"Application tracker, {today:%A} {today.day} {today:%B %Y}", ""]
+    if sheet_url:
+        L += [f"Tracker sheet: {sheet_url}", ""]
+    L += ["What's new"]
     L += [f"- {n}" for n in news] if news else ["No news since the last digest."]
+    if dated or undated:
+        L += ["", "Upcoming interviews"]
+        for r in dated:
+            L.append(f"- {_agenda_when(r)}: {A.who(r['co'], r['role'])}" + (f": {r['note']}" if r["note"] else ""))
+        if undated:
+            names = ", ".join(A.who(r["co"], r["role"]) for r in undated)
+            L.append(f"No date recorded: {names}. Reply with the date and time and it will appear here.")
     for st, items in groups:
         L += ["", f"{st.capitalize()} ({len(items)})"]
         for r in items:
@@ -281,13 +378,14 @@ def _text(today, news, groups, closed, revised, unusable) -> str:
     return "\n".join(L) + "\n"
 
 
-def render(apps: list[dict], today: date, since: datetime, ledger: dict) -> tuple[str, str, str]:
+def render(apps: list[dict], today: date, since: datetime, ledger: dict, sheet_url: str | None = None) -> tuple[str, str, str]:
     news = whats_new(apps, since)
     groups = _groups(apps, today, since)
     closed = _closed_line(apps, today)
     revised, unusable = _revised(apps, ledger, since), _unusable(ledger, since)
+    dated, undated = upcoming_interviews(apps, today)
     n = len(news)
     upd = "no new updates" if n == 0 else f"{n} update" + ("" if n == 1 else "s")
     subject = f"Your applications, {today:%a} {today.day} {today:%b}: {upd}"
-    return (subject, _html(today, news, groups, closed, revised, unusable),
-            _text(today, news, groups, closed, revised, unusable))
+    return (subject, _html(today, news, groups, closed, revised, unusable, dated, undated, sheet_url),
+            _text(today, news, groups, closed, revised, unusable, dated, undated, sheet_url))

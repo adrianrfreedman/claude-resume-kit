@@ -48,6 +48,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import applications as A  # noqa: E402
+import sheet  # noqa: E402
 import tracker_digest as D  # noqa: E402
 from fetch_replies import CANDIDATE, IMAP_HOST, IMAP_PORT, MAILBOX, save_reply, strip_quoted  # noqa: E402
 from send_digest import ALIAS, DOMAIN, FIRST, FROM_HEADER, LIST_ID, RECIPIENTS_CC, RECIPIENTS_TO, REPLY_TO, SENDER, SMTP_HOST, SMTP_PORT, keychain_password, tagged_msgid  # noqa: E402
@@ -100,6 +101,7 @@ EVENTS_SCHEMA = {
                     "type": {"enum": ["applied", "acknowledged", "interviewing", "offer", "rejected", "withdrawn", "note"]},
                     "date": {"type": "string"},
                     "note": {"type": "string", "maxLength": 80},
+                    "when": {"type": "string"},
                 },
                 "required": ["app_id", "company", "role", "type", "date", "note"],
             },
@@ -412,6 +414,18 @@ def _norm(s: str | None) -> str:
     return re.sub(r"^\W+|\W+$", "", (s or "").lower())
 
 
+def valid_when(ev: dict) -> str | None:
+    """The interview's when, only on interviewing events and only if well-formed."""
+    w = ev.get("when")
+    if ev["type"] != "interviewing" or not w or not re.fullmatch(r"\d{4}-\d\d-\d\d(T\d\d:\d\d)?", w):
+        return None
+    try:
+        _dt.datetime.fromisoformat(w)
+    except ValueError:
+        return None
+    return w
+
+
 def handle_events(msg, kind, full_id, apps, ledger) -> dict:
     prev, extra = None, ""
     if kind == "alias":
@@ -435,7 +449,10 @@ def handle_events(msg, kind, full_id, apps, ledger) -> dict:
         "(for a forward, the date of the ORIGINAL email, not the forward), and a short note, at most 80 characters, "
         "plain, stating only what the email says (e.g. \"Application received; they'll be in touch\", "
         f"\"Interview with Dana, Thu 22 Oct 14:00\"), written for {FIRST}, never restating the role, "
-        "with no remarks about the list or this process. Set undo_previous=true only if they are "
+        "with no remarks about the list or this process. For an interviewing event whose email states when the "
+        "interview is, also give when: the interview's own date and time as YYYY-MM-DDTHH:MM in the time zone the "
+        "email uses (YYYY-MM-DD if no time is given), resolving weekday names and \"next week\" against the email's "
+        "sent date; omit when if no date is stated or for any other event type. Set undo_previous=true only if they are "
         "correcting an earlier record as wrong. Set relevant=false if the email is not about a job.\n\n"
         f"APPLICATIONS:\n{app_list(apps)}\n{extra}\nEMAIL (sent {msg_date(msg)}, subject: {msg['Subject']}):\n{text}",
         EVENTS_SCHEMA,
@@ -466,7 +483,7 @@ def handle_events(msg, kind, full_id, apps, ledger) -> dict:
         if (ev["type"] in NEEDS_APPLIED or (is_new and ev["type"] == "note")) and not any(e["type"] == "applied" for e in app["events"]):
             A.add_event(app, date, "applied", "", mid, auto=True)
             events.append([app["id"], "applied"])
-        A.add_event(app, date, ev["type"], ev["note"], mid)
+        A.add_event(app, date, ev["type"], ev["note"], mid, when=valid_when(ev))
         events.append([app["id"], ev["type"]])
         lines.append(event_line(app, ev))
         touched.add(app["id"])
@@ -705,6 +722,14 @@ def run_items(items, ledger, dry, replay=False) -> None:
                 record_failure(raw, kind, mid, exc, ledger)
 
 
+def push_sheet() -> None:
+    """Best-effort sheet mirror; failure is logged and retried next run, never alerts."""
+    try:
+        sheet.push(A.load(APPS), _dt.date.today())
+    except Exception as exc:
+        log(f"sheet push failed: {exc}")
+
+
 def check(dry: bool) -> int:
     ledger = A.load(STATE / "processed.json") if (STATE / "processed.json").exists() else {}
     if isinstance(ledger, list):
@@ -716,6 +741,7 @@ def check(dry: bool) -> int:
         run_items(items, ledger, dry)
         if not dry:
             clear_alert()
+            push_sheet()
     except Systemic as exc:
         sys.stderr.write(f"SYSTEMIC: {exc}\n")
         if not dry:
@@ -773,7 +799,7 @@ def digest(dry: bool, preview: bool, run_check: bool = True) -> int:
     if last.exists():
         since = _dt.datetime.fromisoformat(json.loads(last.read_text(encoding="utf-8"))["sent_at"])
     today = now.date()
-    subject, html_body, text = D.render(apps, today, since, ledger)
+    subject, html_body, text = D.render(apps, today, since, ledger, sheet.SHEET_LINK)
     if dry:
         (STATE / f"digest_{today}.html").write_text(html_body, encoding="utf-8")
         (STATE / f"digest_{today}.txt").write_text(text, encoding="utf-8")

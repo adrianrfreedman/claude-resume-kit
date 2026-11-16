@@ -184,7 +184,7 @@ If you proceed without confirmation, you will generate bullets the user didn't a
 2. `resume_builder/support/ai_fingerprint_rules.md` — Banned words, structural rules, post-gen checklist
 
 **Copy the template:** `resume_builder/templates/resume_template.html` → `output/<FolderName>/e2e_<name>_resume.html`
-FIXED sections (from `config.md` FIXED Sections) are content-locked — copy verbatim from config / prior resume. Only write VARIABLE sections (tagline, Summary, Competencies, Experience titles/bullets, publication ordering + tags).
+FIXED sections (from `config.md` FIXED Sections) are content-locked — copy verbatim from config / prior resume. Only write VARIABLE sections (tagline, Summary, Competencies, Experience titles/bullets, publication ordering + tags if Publications is a FIXED section; a Projects / Open Source section is VARIABLE when the config's experience includes it).
 
 **Fill the template:**
 1. Set `--accent` / `--accent-soft` to suit the target (medical=teal `#10707a`, biotech=brown `#6b4423`, etc.). Update the `.pub-tag` background rgba to match.
@@ -192,7 +192,7 @@ FIXED sections (from `config.md` FIXED Sections) are content-locked — copy ver
 3. Summary → check against session framing strategy. `<em>` for journal/product names.
 4. Core Competencies → 5 rows: JD-facing label + ` · `-separated evidence.
 5. Each position: bold `.role-title` = JD-themed; `.role-org` = formal role · institution; bullets written FRESH per the Experience Bullet Writing Protocol, reframed with target-domain vocabulary. End bullets on a concrete result, not an `-ing` clause.
-6. Education (FIXED) + Selected Publications (order by JD relevance; tags per `config.md` Provenance Flags).
+6. Education (FIXED) + Selected Publications only if `config.md` FIXED Sections lists Publications (order by JD relevance; tags per Provenance Flags); otherwise delete that section. Add a Projects / Open Source section after Experience if the config includes one.
 
 **Provenance & anti-fabrication rules from `CLAUDE.md` still apply in full.**
 

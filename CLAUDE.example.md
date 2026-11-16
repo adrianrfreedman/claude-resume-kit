@@ -102,6 +102,7 @@ NEVER use internal code folder names as if they are software packages. Always de
 NEVER include lines-of-code counts or test counts in resume, CV, or cover letter output. Focus on what the tool does, its impact, and adoption.
 
 ### Rule 3: Publication status accuracy
+(Rules 3-4 apply only if your resume lists publications.)
 Only list papers as "Under Review" if they are actually under review. Check `config.md` Provenance Flags.
 
 ### Rule 4: Publication format — use et al.

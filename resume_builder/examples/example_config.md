@@ -11,6 +11,13 @@
 
 ---
 
+## Tracker sheet (optional)
+
+- **Sheet link:** https://docs.google.com/spreadsheets/d/<sheet-id>
+- **Sheet web app:** https://script.google.com/macros/s/<deployment-id>/exec
+
+---
+
 ## Personal Info
 
 - **Name:** Jordan Chen

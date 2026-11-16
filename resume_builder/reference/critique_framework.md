@@ -140,6 +140,7 @@ Read the resume/CV from five different personas, in order. Each persona sees onl
 - **Truthfulness audit:** For each quantitative claim, is it verified against extractions/experience files?
 - **Provenance flags:** All works-in-progress or under-review items properly flagged?
 - **Verb discipline:** Contributing-author bullets use hedged verbs? Full-ownership verbs only where justified?
+- (Publication checks below apply only when the resume has a publications section.)
 - **Publication coherence:** Do pub tags match the resume's domain framing? Do paper titles (which can't be changed) create cognitive dissonance with the reframed bullets?
 - **Publication tag axis:** Are ALL tags on the same axis? A topic tag ("Machine learning", "Biomarkers") sitting among authorship tags ("First author", "Co-first author") breaks the column a reader scans for credit, and reads as a capability claim in the one place they are checking claims. Any authorship tag must match the author position in `pub_metadata.md`.
 - **Internal consistency:** Does the summary match the bullets? Does the cover letter match the resume?
@@ -159,7 +160,7 @@ Score each dimension independently, then compute weighted total.
 | 2 | Summary | 10% | Bridge sentence, target-domain language, prestige signals, forward-looking intent |
 | 3 | Skills Section | 10% | Group names (domain signal), content relevance, bold accuracy, no wasted entries |
 | 4 | Bullet Quality | 25% | Per-bullet JD alignment (HIGH/MEDIUM/LOW), reframing quality, quantification, action verbs |
-| 5 | Publication Selection | 10% | Venue prestige, tag relevance, first-author ratio, domain gap acknowledgment |
+| 5 | Publication Selection | 10% | Venue prestige, tag relevance, first-author ratio, domain gap acknowledgment. No publications section: score Projects / Open Source instead; if neither, mark N/A and rescale the other weights proportionally |
 | 6 | Narrative Coherence | 15% | Header-to-footer story, domain thread count, first-impression timing |
 | 7 | Page Fill & Visual | 5% | Budget compliance, orphan check, compile clean, slack acceptable |
 | 8 | Credibility Signals | 10% | Venue quality, metrics (papers, citations, awards), platform adoption, leadership evidence |

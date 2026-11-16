@@ -83,7 +83,7 @@ Find and read the session file for the .tex being critiqued (use derivation prot
        (a) Reviewer persona (b) Company context (c) JD vocabulary extraction (d) Domain vocabulary map
        (e) Gap ranking (fatal/serious/cosmetic) (f) Methodology transfer test (g) Competitive landscape
     2. **Five-Perspective Read-Through** — ATS, Recruiter (10s), HR (30s), HM (2min), Technical (10min) — each with verdict
-    3. **Eight-Dimension Scoring** — weighted table summing to 100
+    3. **Eight-Dimension Scoring** — weighted table summing to 100 (no publications: score Projects / Open Source in place of Publications, or mark N/A and rescale the other weights proportionally)
        (ATS 15%, Summary 10%, Skills 10%, Bullets 25%, Publications 10%, Narrative 15%, Visual 5%, Credibility 10%)
     4. **Interview Likelihood** — per-reader probability + ceiling analysis
     5. **Tiered Improvements** — Tier 1 (>=1pt each), Tier 2 (0.3-0.9), Tier 3 (<0.3)

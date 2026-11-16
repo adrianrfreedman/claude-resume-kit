@@ -1,5 +1,5 @@
 ---
-description: Extract structured information from research papers, PDFs, or code into knowledge base extractions
+description: Extract structured information from a source (paper, CV, LinkedIn export, project write-up, or code/repo) into knowledge base extractions
 user-invocable: true
 ---
 
@@ -8,9 +8,9 @@ user-invocable: true
 **User input:** `$ARGUMENTS`
 
 Parse `$ARGUMENTS`:
-- File path to a paper (e.g., `papers/Smith2024_catalyst.pdf`, `papers/project_report.tex`) → read that file
+- File path to a source: a paper, CV, LinkedIn export, project write-up, or code/repo (e.g., `papers/Smith2024_catalyst.pdf`, `notes/acme_platform_writeup.md`) → read that file
 - Multiple paths separated by spaces → batch mode (process each sequentially)
-- Empty → ask the user for the paper path or paste content
+- Empty → ask the user for the source path or paste content
 
 ---
 
@@ -20,47 +20,49 @@ Parse `$ARGUMENTS`:
 2. Read `config.md` — load Personal Info (to identify user's author position), Provenance Flags
 3. Read `knowledge_base/extractions/_INVENTORY.md` — see what's already extracted, avoid duplicates
 
-If the paper is already in the inventory:
+If the source is already in the inventory:
 - Show the existing extraction path
-- Ask: "This paper is already extracted. Re-extract (overwrite) or skip?"
+- Ask: "This source is already extracted. Re-extract (overwrite) or skip?"
 - Wait for user response before proceeding
 
 ---
 
-## Phase 1: Read & Understand the Paper
+## Phase 1: Read & Understand the Source
 
-Read the paper using the appropriate method:
+Read the source using the appropriate method:
 - **PDF files:** Use the Read tool (supports PDF reading)
 - **.tex source:** Read directly — often has more detail than the compiled PDF
 - **If both exist:** Prefer .tex for content extraction, use PDF for figures/tables
 
 **While reading, collect:**
-1. Full title, all authors, year, journal/venue, DOI (if available)
-2. The user's position in the author list (first, co-first, second, middle, last, corresponding)
-3. Publication status (check `config.md` Provenance Flags first, then infer: published / under review / draft / internal)
+1. Title (paper title, or Company — Role / project name), year or date range; for papers also all authors, journal/venue, DOI
+2. The user's position (papers: author-list position: first, co-first, second, middle, last, corresponding; otherwise: role on the job/project)
+3. Status (check `config.md` Provenance Flags first, then infer). Papers: published / under review / draft / internal. Other sources: shipped / internal / confidential / unshipped
 4. All computational methods, experimental techniques, software, and frameworks mentioned
 5. Quantitative results — speedups, accuracies, efficiencies, improvements over baselines
 6. Novelty claims — "first-ever", "new framework", "novel approach", etc.
 7. Collaboration indicators — other groups, institutions, shared resources
 8. Funding acknowledgments
 
-Progress: "Reading paper... [title] by [first author] et al., [year]"
+Progress: "Reading source... [title] ([first author] et al., [year] for a paper; Company — Role, dates otherwise)"
 
 ---
 
 ## Phase 2: Clarify User's Role
 
-If the user's contribution is not obvious from the paper (common for multi-author work), ask:
+If the user's contribution is not obvious from the source (common for multi-author or team work), ask:
 
 **Questions to ask (skip any that are already clear from the paper):**
-1. "What was your specific contribution? (e.g., all computational work, specific analysis, code development)"
-2. "Did you develop any tools, methods, or code used in this paper?"
-3. "Were there other groups or institutions involved? What was your group's role?"
-4. "Any quantitative results you can personally claim? (e.g., 'I ran all the simulations')"
-5. "Is there anything in this paper that should NOT appear on your resume? (e.g., collaborator's experimental data)"
+1. "What was your specific contribution? (e.g., all computational work, a specific service, code development)"
+2. "Did you develop any tools, methods, or code used here?"
+3. "Were there other groups, teams or institutions involved? What was your role?"
+4. "Any quantitative results you can personally claim? (e.g., 'I ran all the simulations', 'I cut p95 latency 40%')"
+5. "Is there anything here that should NOT appear on your resume? (e.g., collaborator's data, confidential client names, NDA metrics)"
+
+**Only if the source is a paper**, also ask: the publication status (published / under review / preprint / draft) if `config.md` Provenance Flags doesn't settle it, and your author position if unclear.
 
 ### >>>>>> MANDATORY STOP — DO NOT PROCEED <<<<<<
-Present your understanding of the paper and ask the clarifying questions above.
+Present your understanding of the source and ask the clarifying questions above.
 **You MUST wait for the user's explicit text response before continuing.**
 
 ---
@@ -77,15 +79,15 @@ Create the extraction file at `knowledge_base/extractions/<AuthorYear_short_desc
 **Extraction format:**
 
 ```markdown
-# [Full Paper Title]
+# [Title: paper title, or Company — Role / project name]
 
 ## Metadata
-- **Authors:** [author list — highlight user's name with bold]
+- **Authors:** [papers: author list, user's name in bold; otherwise "n/a"]
 - **Year:** [year]
-- **Journal:** [journal/venue or "unpublished"/"internal"/"under review at X"]
+- **Journal:** [papers: journal/venue or "unpublished"/"under review at X"; otherwise "n/a" or "internal"]
 - **DOI:** [DOI or "N/A"]
-- **User's role:** [first author / co-first / contributing / corresponding]
-- **Status:** [published | under review | draft | internal]
+- **User's role:** [first author / co-first / contributing / corresponding; or job/project role]
+- **Status:** [published | under review | draft | internal | shipped | confidential]
 
 ## Methods & Tools
 - **Computational methods:** [e.g., MD, ML, FEA, CFD, etc. — be specific about methods, force fields, etc.]
@@ -105,12 +107,12 @@ Create the extraction file at `knowledge_base/extractions/<AuthorYear_short_desc
 - [e.g., "New method combining A and B — no prior work exists"]
 
 ## Collaboration & Scope
-- **Other groups:** [institutions, PIs involved]
+- **Other groups:** [institutions, PIs, or teams involved]
 - **User's specific contribution:** [from Phase 2 clarification]
 - **Shared vs. sole work:** [what the user did alone vs. with others]
 
 ## Provenance Notes
-- **Publication status:** [matches config.md if listed there]
+- **Status:** [matches config.md if listed there]
 - **Safe to claim:** [what the user can put on a resume without hedging]
 - **Needs hedging:** [claims that require "contributed to" or "supported" framing]
 - **Do NOT claim:** [results from collaborators, claims that would be overclaiming]
@@ -152,11 +154,11 @@ After extraction is complete, present:
 1. **Extraction summary:** [N] methods, [M] quantitative results, [K] bullet seeds
 2. **Provenance flags:** Any items that need special handling
 3. **Suggested next action:**
-   - If more papers to extract: "Run `/setup-extract [next paper path]`"
-   - If all papers done: "Run `/setup-build-kb` to synthesize extractions into experience files and bundles"
+   - If more sources to extract: "Run `/setup-extract [next source path]`"
+   - If all sources done: "Run `/setup-build-kb` to synthesize extractions into experience files and bundles"
 
 ### >>>>>> MANDATORY STOP <<<<<<
-Present extraction summary. Wait for user feedback or next paper.
+Present extraction summary. Wait for user feedback or next source.
 **You MUST wait for the user's explicit text response before continuing.**
 
 ---
@@ -164,7 +166,7 @@ Present extraction summary. Wait for user feedback or next paper.
 ## Batch Mode
 
 If `$ARGUMENTS` contains multiple file paths:
-1. Process each paper through Phases 1-4 sequentially
-2. Ask Phase 2 clarifying questions for ALL papers at once (grouped) before writing any extractions
+1. Process each source through Phases 1-4 sequentially
+2. Ask Phase 2 clarifying questions for ALL sources at once (grouped) before writing any extractions
 3. After all extractions: present combined inventory update and summary
-4. Single STOP at the end (not per paper)
+4. Single STOP at the end (not per source)

@@ -644,3 +644,28 @@ class TestDigestCatchUp:
         monkeypatch.setattr(T, "send_mail", boom)
         assert self.run(monkeypatch, "--check") == 0
         assert "digest catch-up failed: dns" in capsys.readouterr().err
+
+
+class TestInterviewWhen:
+    def _run(self, env, monkeypatch, typ, when):
+        ev = {"app_id": "new", "company": "Roche", "role": "Analyst", "type": typ,
+              "date": "2026-10-20", "note": "n"}
+        if when is not None:
+            ev["when"] = when
+        stub(monkeypatch, {"relevant": True, "undo_previous": False, "events": [ev]})
+        run_saved(mk(subject="Fwd: x", to=T.ALIAS, body="b"))
+        return [e for e in A.load(T.APPS)[0]["events"] if e["type"] == typ][0]
+
+    def test_valid_when_stored(self, env, monkeypatch):
+        assert self._run(env, monkeypatch, "interviewing", "2026-10-26T19:00")["when"] == "2026-10-26T19:00"
+
+    def test_date_only_stored(self, env, monkeypatch):
+        assert self._run(env, monkeypatch, "interviewing", "2026-10-26")["when"] == "2026-10-26"
+
+    def test_malformed_dropped(self, env, monkeypatch):
+        for bad in ("next Monday", "2026-10-26 19:00", "2026-13-40", "2026-10-26T25:00"):
+            assert "when" not in self._run(env, monkeypatch, "interviewing", bad)
+            (env[0] / "apps.json").unlink()
+
+    def test_non_interviewing_dropped(self, env, monkeypatch):
+        assert "when" not in self._run(env, monkeypatch, "note", "2026-10-26T19:00")

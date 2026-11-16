@@ -112,6 +112,18 @@ python3 job_scanner/track.py --digest --preview-to-sender # sends to the sender 
 
 Tests: `uvx --with pyyaml pytest job_scanner/ -q`
 
+## Tracker sheet (optional)
+
+`sheet.py` mirrors `applications.json` into a Google Sheet through an Apps Script web app (stdlib only, no Google Cloud project). The sheet updates within 5 minutes of any tracker change (and once a day as "Days quiet" ticks), and the digest email links it.
+
+1. Create a Google Sheet in the Google account that will own it, and share it with the candidate as **Viewer** (the tracker rewrites it, so edits would be lost).
+2. Extensions > Apps Script: replace `Code.gs` with `job_scanner/sheet_webapp.gs` and save.
+3. Deploy > New deployment > Web app; Execute as: Me; Who has access: Anyone; authorise; copy the `/exec` URL. That URL lets anyone who has it write the sheet, so keep it private.
+4. Add `Sheet link` (the sheet's normal URL) and `Sheet web app` (the `/exec` URL) to `config.md` (see `resume_builder/examples/example_config.md`).
+5. Run `python3 job_scanner/sheet.py`; the sheet fills.
+
+Tabs: **Applications** (Phase, Company, Role, Applied, Last heard, Days quiet, Latest, Summary; grouped by phase, colour-coded) and **Timeline** (every event, newest first). A failed push is logged to `state/tracker/track.log` and retried on the next run.
+
 ## Setup
 
 1. Copy `sources.example.yaml` to `sources.yaml` and `companies.example.yaml` to `companies.yaml`; fill in your own.

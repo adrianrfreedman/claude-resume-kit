@@ -152,3 +152,16 @@ class TestStatusPreparedSameDay:
         A.add_event(app, "2026-11-08", "note", "n")
         A.add_event(app, "2026-11-08", "applied", "sent")
         assert A.status(app, date(2026, 11, 8)) == "applied"
+
+
+class TestWhen:
+    def test_stored_when_given(self):
+        a = app_with()
+        A.add_event(a, "2026-10-19", "interviewing", "n", when="2026-10-26T19:00")
+        assert a["events"][-1]["when"] == "2026-10-26T19:00"
+
+    def test_omitted_otherwise(self):
+        a = app_with()
+        A.add_event(a, "2026-10-19", "interviewing", "n")
+        A.add_event(a, "2026-10-19", "note", "n", when="")
+        assert all("when" not in e for e in a["events"])

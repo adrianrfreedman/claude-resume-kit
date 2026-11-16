@@ -10,8 +10,10 @@ SINCE = datetime(2026, 10, 18, 9, 0)
 OLD, NEW = "2026-10-17T10:00:00", "2026-10-19T07:00:00"
 
 
-def ev(date_, type_, note="", recorded=OLD):
+def ev(date_, type_, note="", recorded=OLD, when=None):
     e = {"date": date_, "type": type_, "note": note, "message_id": None}
+    if when:
+        e["when"] = when
     if recorded:
         e["recorded"] = recorded
     return e
@@ -192,3 +194,63 @@ class TestCompactRows:
         _, html, _ = render(apps)
         assert html.count("<details>") == 1  # only "How to use this"
         assert "Co5, Analyst" in html
+
+
+def iv(co, *whens, role="Analyst", note=""):
+    evs = [ev("2026-10-10", "applied")] + [ev("2026-10-15", "interviewing", note, when=w) for w in whens]
+    return app(co, evs, role=role)
+
+
+class TestInterviewCalendar:
+    def test_omitted_when_nothing_to_show(self):
+        _, html, text = render([app("A", [ev("2026-10-10", "applied")])])
+        assert "Upcoming interviews" not in html and "Upcoming interviews" not in text
+
+    def test_dated_interview_in_html_and_text(self):
+        _, html, text = render([iv("Roche", "2026-10-26T19:00", note="Teams with Sara")])
+        assert "Upcoming interviews" in html and "Mon 26 Oct, 19:00" in html
+        assert "Roche, Analyst" in html and "Teams with Sara" in html
+        assert "- Mon 26 Oct, 19:00: Roche, Analyst: Teams with Sara" in text
+        assert html.index("Upcoming interviews") > html.index("What’s new")
+        assert html.index("Upcoming interviews") < html.index(">Interviewing <span")
+
+    def test_past_when_omitted(self):
+        _, html, text = render([iv("Roche", "2026-10-18T10:00")])
+        assert "Upcoming interviews" not in html and "Upcoming interviews" not in text
+
+    def test_rescheduled_later_wins(self):
+        _, html, text = render([iv("Roche", "2026-10-22T10:15", "2026-10-27T16:45")])
+        assert "16:45" in html and "10:15" not in html and "10:15" not in text
+
+    def test_closed_app_omitted(self):
+        a = iv("Roche", "2026-10-26T19:00")
+        a["events"].append(ev("2026-10-18", "rejected"))
+        _, html, _ = render([a])
+        assert "Upcoming interviews" not in html
+
+    def test_undated_listed(self):
+        a = app("Teva", [ev("2026-10-10", "applied"), ev("2026-10-15", "interviewing", "Call")])
+        _, html, text = render([a])
+        assert "No date recorded: Teva, Analyst" in html and "No date recorded: Teva, Analyst." in text
+
+    def test_ghosted_not_listed_as_undated(self):
+        a = app("Old", [ev("2026-08-01", "applied"), ev("2026-08-05", "interviewing")])
+        _, html, text = render([a])
+        assert "No date recorded" not in html and "No date recorded" not in text
+
+    def test_date_only_has_no_time(self):
+        _, html, text = render([iv("Roche", "2026-10-26")])
+        assert "Mon 26 Oct" in html and "Mon 26 Oct," not in html
+        assert "- Mon 26 Oct: Roche, Analyst" in text
+
+    def test_grid_starts_sunday_and_caps_rows(self):
+        _, html, _ = render([iv("Roche", "2026-10-20T09:00"), iv("Far", "2026-12-15T09:00")])
+        grid = html[html.index("table-layout:fixed"):]
+        grid = grid[:grid.index("</table>")]
+        assert grid.count("<tr>") == 1 + D.CAL_WEEKS
+        assert ">18<" in grid and ">17<" not in grid
+        assert "Far" not in grid and "Tue 15 Dec" in html  # beyond the grid, still in the agenda
+
+    def test_company_escaped(self):
+        _, html, _ = render([iv("A<b>&Co", "2026-10-26T19:00")])
+        assert "A<b>" not in html and "A&lt;b&gt;&amp;Co" in html
