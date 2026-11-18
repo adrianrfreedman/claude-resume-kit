@@ -3,7 +3,7 @@
   Shared resume template — HTML → PDF pipeline.
   Per JD: copy this file to output/<Folder>/e2e_<name>_resume.html, then
     1. Set --accent / --accent-soft to suit the target (medical=teal, biotech=brown, etc.)
-    2. Fill every <!-- FILL --> block with tailored content. Delete unused rows/roles.
+    2. Fill every FILL marker with tailored content. Delete unused rows/roles.
     3. Render + verify:  bash resume_builder/helpers/render_pdf.sh output/<Folder>/e2e_<name>_resume.html
     4. Read the produced .pdf. Adjust content until page count is right and pages are ~full.
   An optional "Projects" / "Open Source" section can follow Experience, using the same .role markup.

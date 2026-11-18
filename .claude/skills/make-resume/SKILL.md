@@ -25,7 +25,7 @@ Read `config.md` Provenance Flags before generating any content. Verify every cl
 - Use the email from `config.md` Personal Info in all outputs
 - Resume bullets: ALL variable bullets are 2L (CV: 2L/3L mix OK, check `config.md` Document Preferences)
 - Source ALL bullet content from `resume_builder/experience/` files. Never fabricate.
-- Run `python3 resume_builder/helpers/char_count.py` after each section — the tool is authoritative
+- LaTeX pipeline only: run `python3 resume_builder/helpers/char_count.py` after each section — the tool is authoritative. The HTML pipeline's gate is the rendered PDF (Phase 2).
 
 ---
 

@@ -101,7 +101,7 @@ Start from `resume_builder/examples/example_config_industry.md`.
 
 ## Set it up for real
 
-**You'll need:** [Claude Code](https://docs.anthropic.com/en/docs/claude-code), installed and logged in. You'll also need Google Chrome or Chromium, which renders the HTML templates to PDF. `pdfinfo` from poppler is optional and gives exact page counts. The LaTeX templates are still included if you prefer them. The job scanner additionally needs macOS, Python 3 with PyYAML, and a Gmail app password.
+**You'll need:** [Claude Code](https://docs.anthropic.com/en/docs/claude-code), installed and logged in. You'll also need Google Chrome or Chromium, which renders the HTML templates to PDF. `pdfinfo` from poppler is optional and gives exact page counts. To use the included LaTeX templates instead, set `Pipeline: LaTeX (legacy)` in `config.md`; that needs `pdflatex`. The job scanner additionally needs macOS, Python 3 with PyYAML, and a Gmail app password.
 
 ### 1. Clone and configure
 

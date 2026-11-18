@@ -8,11 +8,11 @@ user-invocable: true
 **User input:** `$ARGUMENTS`
 
 Parse `$ARGUMENTS`:
-- Session file path (e.g., `output/Acme/session_acme_engineer.md`) → read session file, derive .tex paths from Output Files
-- .tex file path(s) + JD source (existing format) → backward compatible
+- Session file path (e.g., `output/Acme/session_acme_engineer.md`) → read session file, derive `.html`/`.pdf` paths from Output Files
+- `.html` file path(s) (`.tex` under the LaTeX pipeline) + JD source (existing format) → backward compatible
 - Session name (e.g., `acme_engineer`) → find session file via derivation
 
-If no CL .tex provided or found in session file, critique resume/CV alone (Part 7 adjustments noted below).
+If no CL `.html` provided or found in session file, critique resume/CV alone (Part 7 adjustments noted below).
 
 ---
 
@@ -41,7 +41,8 @@ If the user provides feedback, corrections, or suggestions at any point:
 Read `resume_builder/reference/shared_ops.md` — Fresh Session Startup + Session File Derivation.
 Read `CLAUDE.md` — check Active Sessions and KB Corrections.
 Read `config.md` — load Provenance Flags, FIXED Sections, email.
-Find and read the session file for the .tex being critiqued (use derivation protocol from shared_ops.md).
+Read `config.md` Output Rules `Pipeline` (default `HTML`; steps marked "LaTeX pipeline only" apply only to `LaTeX (legacy)`).
+Find and read the session file for the document being critiqued (use derivation protocol from shared_ops.md).
 
 **Recovery check:**
 - If CL not DONE in session file → "CL not yet generated. Run `/make-cl` first."
@@ -61,19 +62,20 @@ Find and read the session file for the .tex being critiqued (use derivation prot
    - If session file lacks Company Context or Critique Context: do 1-2 web searches to fill gaps
 2. Read `resume_builder/reference/critique_framework.md`
 3. Read `resume_builder/support/ai_fingerprint_rules.md` — use Section 6 checklist in Part 7 verification
-3. Read the .tex file(s) — derive paths from session file Output Files, or from `$ARGUMENTS`
+3. Read the `.html` file(s) and rendered `.pdf`(s) — derive paths from session file Output Files, or from `$ARGUMENTS`
 4. Read the JD (path from `$ARGUMENTS` or session file)
 5. Read the relevant bundle (`resume_builder/bundles/bundle_[role_type].md` — from session file)
-6. Run char count:
+6. **LaTeX pipeline only** — run char count:
    ```bash
    python3 resume_builder/helpers/char_count.py -f [resume|cv] [file.tex]
    ```
-7. Compile and visually verify:
+7. Visually verify: if the `.pdf` is missing or older than the `.html`, render it:
    ```bash
-   pdflatex -interaction=nonstopmode -output-directory=output/<FolderName> [file.tex]
+   bash resume_builder/helpers/render_pdf.sh output/<FolderName>/[file].html
    ```
-   Use the Read tool to view the compiled PDF — check orphans, page fill, header wrapping.
-   If compile fails: note "COMPILE FAILED — visual checks could not be verified" in Part 8.
+   Use the Read tool to view the PDF — check orphans, page fill, header wrapping.
+   If render fails: note "RENDER FAILED — visual checks could not be verified" in Part 8.
+   **LaTeX pipeline only:** compile instead with `pdflatex -interaction=nonstopmode -output-directory=output/<FolderName> [file.tex]`.
 8. If a prior critique exists (`output/<FolderName>/critique_<name>.md`): read it and note previous score.
 8b. **Paper Hook Verification:** If the CL cites named papers, PIs, programs, or publications, web-search to verify title, journal, year, and PI affiliation. Flag factual errors as Tier 1 fixes.
 
@@ -105,6 +107,6 @@ If edits needed, tell user to run `/edit-resume`.
 
 ### When user approves / says "looks good" / finalizes:
 Verify all expected files exist in `output/<FolderName>/`:
-- session file, resume/CV .tex + .pdf, CL .tex + .pdf, critique .md
-- Compile artifacts (.aux, .log, .out)
+- session file, resume/CV .html + .pdf, CL .html + .pdf + .txt, critique .md
+- LaTeX pipeline only: .tex files and compile artifacts (.aux, .log, .out)
 Confirm to user: "Package complete in output/<FolderName>/ — [list files]"

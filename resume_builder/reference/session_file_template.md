@@ -78,8 +78,8 @@ Note: Any FIXED positions (e.g., internships) are not included in this plan.
 **Budget:** [N] variable bullets, [N] rendered lines vs target [N]
 
 ## Output Files
-- Resume/CV: `output/<FolderName>/e2e_<name>_[resume|cv].tex`
-- Cover Letter: `output/<FolderName>/e2e_<name>_cover_letter.tex`
+- Resume/CV: `output/<FolderName>/e2e_<name>_[resume|cv].html` + `.pdf`
+- Cover Letter: `output/<FolderName>/e2e_<name>_cover_letter.html` + `.pdf` + `.txt`
 - Critique: `output/<FolderName>/critique_<name>.md`
 
 ## Critique Summary
@@ -102,7 +102,7 @@ Note: Any FIXED positions (e.g., internships) are not included in this plan.
   - Position 1 ([N] bullets): [PENDING | DONE | IN_PROGRESS]
   - Position 2 ([N] bullets): [PENDING | DONE | IN_PROGRESS]
   - Position 3 ([N] bullets): [PENDING | DONE | IN_PROGRESS]
-  - Compile: [PENDING | DONE]
+  - Render: [PENDING | DONE]
 - Cover Letter: [PENDING | IN_PROGRESS | DONE]
 - Critique: [PENDING | IN_PROGRESS | CURRENT (score) | STALE]
 - **Next:** [exact command to copy after /clear]
@@ -113,6 +113,6 @@ Note: Any FIXED positions (e.g., internships) are not included in this plan.
 ## Context Efficiency Notes
 
 - Session 1 (resume): resume_reference.md + critical_rules.md re-read + experience files + bundle + support files + template. Peak depends on knowledge base size.
-- Session 2 (CL): cl_reference.md + significance files (if available) + session file + resume .tex + bundle S5. Much lighter context.
-- Session 3 (critique): critique_framework.md + session file + both .tex + bundle. Moderate context.
+- Session 2 (CL): cl_reference.md + significance files (if available) + session file + resume .html + bundle S5. Much lighter context.
+- Session 3 (critique): critique_framework.md + session file + both .html + bundle. Moderate context.
 - Folder created in Phase 0 — all files go to output/<FolderName>/ from the start.

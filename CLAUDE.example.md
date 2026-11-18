@@ -25,8 +25,8 @@ resume_builder/
 │   ├── critical_rules.md        # Compact re-read — /make-resume Phase 2
 │   ├── session_file_template.md # Session file format
 │   └── critique_framework.md    # 8-part critique system
-├── templates/                   # LaTeX .cls + .tex templates
-├── helpers/                     # char_count.py
+├── templates/                   # HTML templates (+ legacy LaTeX .tex/.cls)
+├── helpers/                     # render_pdf.sh (+ legacy char_count.py)
 ├── examples/                    # Example KB for a fictional researcher
 ├── experience/                  # /setup-build-kb outputs: one file per position
 ├── bundles/                     # /setup-build-kb outputs: one per target role type
@@ -52,7 +52,7 @@ You write as the strategist but critique as the reader.
 
 **Hard rules:**
 - Output format is **aesthetic HTML → PDF via headless Chrome** (`resume_builder/templates/resume_template.html` + `resume_builder/helpers/render_pdf.sh`). The gate is the rendered PDF: render, then Read it and adjust. No LaTeX char-count prediction.
-- The LaTeX pipeline (`.tex`/`.cls`, `char_count.py`, `pdflatex`, char-budget tables in the reference files) is **legacy** — kept for reference only. Char budgets are loose drafting intuition, never a gate.
+- The LaTeX pipeline (`.tex`/`.cls`, `char_count.py`, `pdflatex`, char-budget tables in the reference files) is **legacy** — used only when `config.md` Pipeline is `LaTeX (legacy)`. Char budgets are loose drafting intuition, never a gate.
 - Read `config.md` for email, provenance flags, and output preferences.
 - **Accuracy > Relevance > Impact > ATS > Brevity**
 
@@ -113,7 +113,9 @@ Institutional project funding (grants, internal R&D programs) is NOT a personal 
 
 ---
 
-## LaTeX Scientific Notation (MANDATORY)
+## LaTeX Scientific Notation (LaTeX pipeline only)
+
+HTML pipeline: write Unicode/entities directly (`~` and `&sim;` are fine for "approximately"; `<sub>`/`<sup>` for scripts).
 
 All templates load `mhchem` (`\usepackage[version=4]{mhchem}`). Use these conventions:
 

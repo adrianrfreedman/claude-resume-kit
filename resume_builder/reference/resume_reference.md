@@ -3,6 +3,8 @@
 > Resume/CV-specific rules. Read by `/make-resume` and `/edit-resume`.
 > Companion files: `cl_reference.md` (CL rules), `critical_rules.md` (compact re-read).
 > Shared rules (provenance, anti-fabrication, LaTeX notation): `CLAUDE.md`
+>
+> **LaTeX pipeline only:** the char limits, budgets, bold penalties, orphan thresholds, `.cls`/`\vspace`/`\geometry` rules, LaTeX markup and compile gates below apply only when config.md Pipeline is `LaTeX (legacy)`. In the default HTML pipeline the gate is the rendered PDF (render, Read, adjust). Content, provenance and narrative rules apply to both.
 
 ---
 

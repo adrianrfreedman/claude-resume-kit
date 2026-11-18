@@ -7,12 +7,12 @@ user-invocable: true
 
 **User input:** `$ARGUMENTS`
 
-Parse `$ARGUMENTS`: First argument is the .tex file path (required). A `.md` path is the critique file. Text in quotes is inline instructions.
-- `/edit-resume output/Acme/e2e_acme_resume.tex`
-- `/edit-resume output/Acme/e2e_acme_resume.tex output/Acme/critique_acme.md`
-- `/edit-resume output/Acme/e2e_acme_resume.tex "shorten Position 1 header, fill last page"`
+Parse `$ARGUMENTS`: First argument is the `.html` file path (required; `.tex` under the LaTeX pipeline). A `.md` path is the critique file. Text in quotes is inline instructions.
+- `/edit-resume output/Acme/e2e_acme_resume.html`
+- `/edit-resume output/Acme/e2e_acme_resume.html output/Acme/critique_acme.md`
+- `/edit-resume output/Acme/e2e_acme_resume.html "shorten Position 1 header, fill last page"`
 
-If only .tex path and no instructions: ask the user what to fix.
+If only the file path and no instructions: ask the user what to fix.
 
 ---
 
@@ -25,7 +25,8 @@ Read `config.md` Provenance Flags before editing any content. Verify every claim
 - Use the email from `config.md` Personal Info in all outputs
 - Source ALL bullet content from `resume_builder/experience/` files. Never fabricate.
 - Resume bullets: ALL variable bullets must be 2L (CV: 2L/3L mix OK, check `config.md` Document Preferences)
-- Run `python3 resume_builder/helpers/char_count.py` after edits — the tool is authoritative
+- **LaTeX pipeline only:** run `python3 resume_builder/helpers/char_count.py` after edits — the tool is authoritative. HTML pipeline: render and Read the PDF.
+- Pipeline = `config.md` Output Rules `Pipeline` (default `HTML`)
 
 ### FIXED Sections — Refuse if Asked to Edit
 Check `config.md` FIXED Sections for the list of template-locked sections. Say no and explain: these are template-locked across all outputs.
@@ -38,7 +39,7 @@ VARIABLE sections only: Summary, Technical Skills, Research Experience bullets/h
 
 If the user provides feedback, corrections, or suggestions at any point:
 1. Acknowledge the input immediately
-2. If it affects an already-applied edit: go back, fix it, re-run char count gate
+2. If it affects an already-applied edit: go back, fix it, re-run the gates
 3. If it changes the edit plan: update session file, adjust remaining edits
 4. If it's a question: answer it, then continue from current step
 5. Never restart a phase — resume from current position
@@ -54,7 +55,7 @@ Find and read the session file (use derivation protocol from shared_ops.md).
 
 **Recovery check:**
 - Read session file, check for existing Edit N Status
-- If Edit N Status shows IN_PROGRESS: read .tex, identify which edits are done, resume
+- If Edit N Status shows IN_PROGRESS: read the file, identify which edits are done, resume
 - If no edit in progress: proceed to Phase 1
 
 ---
@@ -63,12 +64,12 @@ Find and read the session file (use derivation protocol from shared_ops.md).
 
 Read in this order:
 1. **Session file** (`output/<FolderName>/session_<name>.md`) — note: Framing Strategy, Company Context, Bullet Plan, Edit History
-2. `resume_builder/reference/resume_reference.md` — char limits, budgets, fixed sections
-3. The .tex file being edited
+2. `resume_builder/reference/resume_reference.md` — fixed sections, content rules (char limits/budgets: LaTeX pipeline only)
+3. The `.html` file being edited
 4. Critique file (if provided in `$ARGUMENTS`)
 5. JD file (path from session file's JD Info section)
-6. Compile current .tex and record baseline page count
-7. Run: `python3 resume_builder/helpers/char_count.py -f [resume|cv] [file.tex]`
+6. Render current file (`bash resume_builder/helpers/render_pdf.sh <html>`), Read the PDF, record baseline page count (`pdfinfo` optional for exact count)
+7. **LaTeX pipeline only:** `python3 resume_builder/helpers/char_count.py -f [resume|cv] [file.tex]` (and pdflatex instead of render in step 6)
 
 **Record baseline in session file** under `## Edit [N] Baseline` (scan existing Edit History sections; next N = max existing + 1, or 1 if none):
 
@@ -104,11 +105,11 @@ Cross-check against **session file framing strategy** — edits must stay consis
 - **FIXED:** Blocked — show in plan with `[FIXED — cannot edit]` and explain why.
 
 **Budget revalidation (if any change is ADD, REMOVE, SWAP-with-different-variant, or VARIANT CHANGE):**
-Recalculate total variable bullets and rendered lines. Compare against budget from resume_reference.md.
+Recalculate total variable bullets (HTML: judge by the rendered PDF; LaTeX pipeline only: rendered lines vs budget from resume_reference.md).
 If OVER budget: present overflow and ask user which bullet to drop or shorten.
 Show: `Budget: [N] bullets ([M] rendered lines) vs target [T]. PASS/FAIL`
 
-If edit targets **cover letter** (not resume/CV): note this — Phase 4 will use CL-specific gates. Load CL .tex path from session file Output Files section.
+If edit targets **cover letter** (not resume/CV): note this — Phase 4 will use CL-specific gates. Load CL `.html` path from session file Output Files section.
 
 ### >>>>>> MANDATORY STOP — DO NOT PROCEED <<<<<<
 Present numbered edit plan. Each item shows: what, why, source, classification (MODIFY/ADD/SWAP/FIXED).
@@ -133,12 +134,13 @@ Load ONLY what the confirmed edits need:
 
 Apply edits one section at a time. After each edited section:
 
-1. Run char count gate:
+1. Render and Read the PDF; check page count, fill, orphans, header wrapping
+2. Fix any orphans or overflow before next section
+3. **LaTeX pipeline only:** run char count gate first:
    ```bash
    python3 resume_builder/helpers/char_count.py -f [resume|cv] output/<FolderName>/[file].tex
    ```
-2. Fix any OVER violations or orphans before next section
-3. If a bullet expansion doesn't render as expected (1L when targeting 2L, or 3L), adjust immediately
+   Fix OVER violations; if a bullet doesn't render at its target line count (1L/2L/3L), adjust immediately
 
 Update session file Edit N Status after each individual edit:
 - Edit 1 (orphan fix): DONE
@@ -147,29 +149,32 @@ Update session file Edit N Status after each individual edit:
 ### Resume/CV Verification Gates
 | Gate | Check | If FAIL |
 |------|-------|---------|
-| Char count | No OVER violations | Fix bullet before proceeding |
-| Page fill | Resume: <= 3 lines white space. CV: check rendered line target | Expand/trim variable bullets |
+| Char count (LaTeX pipeline only) | No OVER violations | Fix bullet before proceeding |
+| Page fill | Pages ~full, no large white gap (LaTeX pipeline only: resume <= 3 lines white space) | Expand/trim variable bullets |
 | Page count | Match `config.md` Document Preferences | Trim/expand variable content |
-| Orphan | 2L bullet last line >= 70% | Pad or trim |
+| Orphan | No one-word last lines (LaTeX pipeline only: 2L last line >= 70%) | Pad or trim |
 | Title width | Position title + date fits 1 line | Shorten title |
-| Compile | Clean pdflatex | Fix LaTeX errors |
+| Render | PDF produced, no layout breaks | Fix HTML |
+| Compile (LaTeX pipeline only) | Clean pdflatex | Fix LaTeX errors |
 
 ### Cover Letter Verification Gates (if CL was edited)
 | Gate | Check | If FAIL |
 |------|-------|---------|
 | Word count | Industry 250-300, Lab/Academic 350-450 | Trim/expand |
-| Page fill | 1pg: well-filled. 2pg: page 2 >= half filled before signature | Adjust |
+| Page fill | Exactly 1 page, well-filled (LaTeX pipeline only: 2pg allowed, page 2 >= half filled) | Adjust |
 | Paragraph count | Industry 3, Lab/Academic 4 | Restructure |
 | Anti-patterns | No generic opener, no defensive framing, no credential dump | Rewrite |
 | Package cohesion | CL claims traceable to resume bullets, no contradictions | Fix |
 
-After all edits, compile:
+After all edits, render (CL edits: also update the `.txt`):
 ```bash
-pdflatex -interaction=nonstopmode -output-directory=output/<FolderName> output/<FolderName>/[file].tex
+bash resume_builder/helpers/render_pdf.sh output/<FolderName>/[file].html
 ```
-Use the Read tool to view the compiled PDF — check page count, white space, orphans, header wrapping.
+**LaTeX pipeline only:** compile with `pdflatex -interaction=nonstopmode -output-directory=output/<FolderName> output/<FolderName>/[file].tex`.
 
-Progress: "Editing Position 1 bullet 6 — was 184 chars, now 197..." / "Compiling... 2 pages, page fill OK"
+Use the Read tool to view the PDF — check page count, white space, orphans, header wrapping.
+
+Progress: "Editing Position 1 bullet 6 — was 184 chars, now 197..." / "Rendering... 2 pages, page fill OK"
 
 ---
 
@@ -198,7 +203,7 @@ Progress: "Editing Position 1 bullet 6 — was 184 chars, now 197..." / "Compili
 
 4. **Update memory pointer** if status changed.
 
-5. **Present:** Changes summary + delta table + compiled PDF.
+5. **Present:** Changes summary + delta table + rendered PDF.
 
 ### >>>>>> MANDATORY STOP <<<<<<
 Show results. Wait for user approval or further edits.

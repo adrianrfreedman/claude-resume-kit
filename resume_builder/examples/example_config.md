@@ -112,4 +112,6 @@ These are copied verbatim from your template every time.
 - **Email in all outputs:** jordan.chen@email.com
 - **Resume package:** 2 pages + 1-page cover letter
 - **CV package:** 5 pages + 1-2 page cover letter
-- **Output .tex files ONLY** -- user compiles locally
+- **Pipeline:** HTML
+  - `HTML` (default): documents are HTML rendered to PDF with headless Chrome (`render_pdf.sh`); the gate is reading the PDF.
+  - `LaTeX (legacy)`: `.tex` templates, `char_count.py` and `pdflatex`; needs a LaTeX install.

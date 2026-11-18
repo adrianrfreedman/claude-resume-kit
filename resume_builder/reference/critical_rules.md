@@ -1,8 +1,10 @@
 # Critical Rules — Compact Re-Read
 
 > Quick reference for Phase 2 generation. Full rules in `resume_reference.md`.
+>
+> Sections marked **LaTeX pipeline only** apply when config.md Pipeline is `LaTeX (legacy)`. In the default HTML pipeline, render and Read the PDF instead; the content, provenance and narrative rules apply to both.
 
-## Character Limits
+## Character Limits (LaTeX pipeline only)
 
 **Resume (10pt, textwidth=7.5in):**
 
@@ -28,17 +30,19 @@
 | CV-2L | 5-page CV | 2 | 168-182 | 190 | >= 65 | ~21-22 words |
 | CV-3L | 5-page CV | 3 | 250-268 | 280 | >= 65 | ~31-32 words |
 
-## Bold Width Penalty
+## Bold Width Penalty (LaTeX pipeline only)
 
 Resume (10pt): Effective limit = 119 - (0.5 x bold_char_count)
 CV (11pt): Effective limit = 91 - (0.25 x bold_char_count)
 
-## Orphan Rule
+## Orphan Rule (LaTeX pipeline only)
 
 Multi-line bullet last rendered line must fill >= 70% of line width.
 Resume 2L: last line >= 78 chars. CV 2L: >= 65 chars. CV 3L: >= 65 chars.
 
 ## FIXED Sections — NEVER Modify
+
+(`\vspace`/`\geometry`/`.cls` rules below: LaTeX pipeline only. HTML: do not touch the template CSS or fixed section content.)
 
 All FIXED sections (internships, education, publications, honors/awards, header block) are set in the template.
 NEVER change: \vspace values, \geometry settings, .cls formatting, header layout.
@@ -55,7 +59,9 @@ See `CLAUDE.md` for your project-specific provenance flags. Common patterns:
 | Internal/proprietary | "infrastructure I developed" — not peer-reviewed |
 | Preprint only | Always flag provenance |
 
-## LaTeX Notation Quick-Ref
+## LaTeX Notation Quick-Ref (LaTeX pipeline only)
+
+HTML: use Unicode/entities (`~`, `&sim;`, `<sub>`, `<sup>`) directly.
 
 | Item | Correct LaTeX | Wrong | Rendered |
 |------|--------------|-------|----------|
@@ -71,7 +77,7 @@ CRITICAL: ~ in LaTeX = non-breaking space. Use $\sim$ for "approximately."
 
 See `CLAUDE.md` for your project-specific KB corrections log. Always check before generation to avoid re-introducing known errors.
 
-## Budget Reminder
+## Budget Reminder (line counts: LaTeX pipeline only; HTML: fill by looking at the PDF)
 
 Resume: ~20 variable bullets (exact count depends on skills config + immigration line). CV: 19-21 bullets, 45 rendered lines.
 Resume bullets: ALL 2L. CV bullets: 2L/3L mix OK.

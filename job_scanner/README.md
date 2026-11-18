@@ -13,6 +13,11 @@ Autonomous job scanner. Scrapes Israeli + remote boards and curated company care
 | `score.py` | Parallel scoring: one MCP-free headless Sonnet call per JD; writes `state/scores_YYYY-MM-DD.json`. |
 | `digest.py` | Renders `digests/digest_YYYY-MM-DD.md` + `.json` sidecar from the candidates and scores files; appends `state/seen.jsonl` and the run log. |
 | `send_digest.py` | Emails the digest. |
+| `send_package.py` | Emails an application package (`/make-package`, `/revise-package`); with `--company`/`--role` records it in the tracker as "prepared". |
+| `fetch_replies.py` | Saves the candidate's replies to a package email under `output/<Folder>/replies/` (used by `/revise-package`). |
+| `track.py`, `applications.py` | Application tracker: mail ingest, `state/applications.json` store. See [Application tracker](#application-tracker). |
+| `tracker_digest.py` | Renders the daily tracker digest email. |
+| `sheet.py`, `sheet_webapp.gs` | Optional Google Sheet mirror. See [Tracker sheet](#tracker-sheet-optional). |
 | `scoring_prompt.md` | Cached system prompt: profile + bundles + scoring rubric. Personal, gitignored; copy from `scoring_prompt.example.md`. |
 | `state/seen.jsonl` | Dedupe ledger (created on first run). |
 | `state/candidates_YYYY-MM-DD.json` | Prefetch output: candidates, per-source status, raw board pages (only for a query page where no card parsed). |
@@ -86,8 +91,10 @@ See [`launchd/README.md`](launchd/README.md): scanner, tracker check and tracker
 `track.py` reads the candidate's mail (config.md Name/Email) over IMAP (read-only), keeps `state/applications.json` up to date and sends a daily digest. Tagged Message-IDs use `<first>-job-scanner.local`, so two clones on one Gmail account ignore each other's threads.
 
 - **Four kinds of incoming mail:** replies to a scan digest (`scan`), replies to an application package (`package`), replies to a tracker "got it" (`ack`) or digest (`tracker`), and anything sent to the `+jobs` alias (`alias`). Each relevant message gets one Haiku call (`claude -p`).
+- **Package edits:** a reply to a package email that asks for edits runs `/revise-package --unattended` headless (`claude -p`, scoped tool allowlist). Requests that need a decision are held back and listed under "Not changed" in the update email; the update goes back in the same thread. A reply that only says "applied" just records the event.
+- **Interview dates:** an `interviewing` event can carry the interview's own date and time (`when`), read from the email by the Haiku call.
 - **"Got it" replies:** every processed message gets a threaded reply saying what was recorded. Reply to correct it.
-- **Digest:** 07:30 daily, To the candidate, CC the sender. Runs a check first, then sends.
+- **Digest:** 07:30 daily, To the candidate, CC the sender. Runs a check first, then sends. Contents: What's new, an **Upcoming interviews** calendar (Sunday-first grid of up to four weeks, an agenda below it, and a line for interviews with no date recorded), then applications by phase. Applied, acknowledged and interviewing applications with no news for 30 days become Ghosted.
 - **Locking:** `state/tracker/track.lock`. `--check` exits silently if another run holds it; `--digest` waits up to 10 minutes, then exits 1. `--dry-run` skips the lock; a real `--replay` waits like `--digest`. An empty real `--check` prints and writes nothing.
 
 **Reply-To / From:** mail goes out From the sender's account with `Reply-To: <sender local part>+jobs@<sender domain>` (the alias, derived from `Sender`). Gmail rewrites an unverified From address to the account's own. Optional: add the alias under Gmail Settings > Accounts > "Send mail as" and verify it, so From shows as intended.

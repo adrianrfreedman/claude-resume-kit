@@ -7,14 +7,14 @@
 
 ## Three-Session Workflow
 
-Standard JD pipeline uses 3 sessions for token efficiency + quality:
+`/make-package` runs this whole pipeline in one session, with fresh-context subagents for the critiques. Running the skills by hand, use 3 sessions for token efficiency + quality:
 
 Session 1: `/make-resume JDs/JD_xyz.txt`
   → Phase 0 (research) → STOP → Phase 1 (bullets) → STOP → Phase 2 (resume) → STOP
   → "Resume done. Copy after /clear: /make-cl output/<Folder>/session_<name>.md"
 
 Session 2: `/make-cl output/<Folder>/session_<name>.md`
-  → Load context → generate CL → compile → STOP
+  → Load context → generate CL → render → STOP
   → "CL done. Copy after /clear: /critique output/<Folder>/session_<name>.md"
 
 Session 3: `/critique output/<Folder>/session_<name>.md`
@@ -26,7 +26,7 @@ Optional 4th session, after the package is approved:
   -> interview-prep HTML (likely questions + collapsed talking points) -> STOP
 
 If edits needed after critique:
-  /clear → /edit-resume output/<Folder>/e2e_<name>_cv.tex output/<Folder>/critique_<name>.md
+  /clear → /edit-resume output/<Folder>/e2e_<name>_cv.html output/<Folder>/critique_<name>.md
   /clear → /critique output/<Folder>/session_<name>.md (re-critique)
 
 ---
@@ -48,8 +48,9 @@ Every JD gets a persistent session file: `output/<FolderName>/session_<name>.md`
 
 **All output files use the same key:**
 - `output/<FolderName>/session_<name>.md` — context file
-- `output/<FolderName>/e2e_<name>_resume.tex` or `_cv.tex` — generated document
-- `output/<FolderName>/e2e_<name>_cover_letter.tex` — cover letter
+- `output/<FolderName>/e2e_<name>_resume.html` or `_cv.html` + `.pdf` — generated document (render with `resume_builder/helpers/render_pdf.sh`)
+- `output/<FolderName>/e2e_<name>_cover_letter.html` + `.pdf` + `.txt` — cover letter (`.txt` = plain text for application forms)
+- LaTeX pipeline only (config.md Pipeline: `LaTeX (legacy)`): `.tex` replaces `.html`
 - `output/<FolderName>/critique_<name>.md` — critique
 
 **Re-read the session file at the start of EVERY phase** to restore context after compaction.
@@ -58,9 +59,9 @@ Every JD gets a persistent session file: `output/<FolderName>/session_<name>.md`
 
 ## Session File Derivation (for /make-cl, /critique, and /edit-resume)
 
-From .tex path: strip `e2e_` prefix (if present) + `_resume.tex`/`_cv.tex`/`_cover_letter.tex` suffix → `<name>`.
+From an `.html` (or, LaTeX pipeline, `.tex`) path: strip `e2e_` prefix (if present) + `_resume`/`_cv`/`_cover_letter` + extension → `<name>`.
 
-Example: `output/Acme/e2e_acme_engineer_resume.tex` → `acme_engineer` → look for `session_acme_engineer.md`
+Example: `output/Acme/e2e_acme_engineer_resume.html` → `acme_engineer` → look for `session_acme_engineer.md`
 
 **Search order:**
 1. Direct path from $ARGUMENTS
@@ -70,7 +71,7 @@ Example: `output/Acme/e2e_acme_engineer_resume.tex` → `acme_engineer` → look
 5. Glob: `output/**/session_*<company>*.md`
 
 **If still not found:**
-- `/edit-resume`: Tell user — "No session file exists. Run `/make-resume` first, or I can create a minimal one (JD Info + Framing Strategy inferred from .tex content)."
+- `/edit-resume`: Tell user — "No session file exists. Run `/make-resume` first, or I can create a minimal one (JD Info + Framing Strategy inferred from .html content)."
 - `/critique`: Do 1-2 web searches to build minimal context. Note in critique: "No session file — framing context is approximate."
 - `/make-cl`: Tell user — "No session file exists. Run `/make-resume` first."
 
@@ -86,7 +87,9 @@ Per-phase examples are in each SKILL.md.
 
 ---
 
-## Char Count Enforcement
+## Char Count Enforcement (LaTeX pipeline only)
+
+HTML pipeline: no char count; render and Read the PDF. Applies only when config.md Pipeline is `LaTeX (legacy)`.
 
 Run `python3 resume_builder/helpers/char_count.py` after each section or position you write/edit.
 

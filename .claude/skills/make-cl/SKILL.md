@@ -20,6 +20,8 @@ Parse `$ARGUMENTS`:
 
 Read `config.md` Provenance Flags before generating any content. Verify every claim against that table.
 
+**Pipeline:** read `config.md` Output Rules `Pipeline`. Default `HTML`: follow the HTML steps. Only if it says `LaTeX (legacy)` use the "LaTeX pipeline only" subsections.
+
 - Use the email from `config.md` Personal Info in all outputs
 - CL deepens what resume presents — never introduces new claims not traceable to resume bullets
 - Source field context from `resume_builder/support/significance_*.md` files
@@ -46,7 +48,7 @@ Then:
 3. Find and read the session file
 4. **Recovery check:**
    - If CL Status is DONE → "CL already generated. Run `/critique` next." Show next command. Stop.
-   - If CL Status is IN_PROGRESS → check if CL .tex exists, offer to resume or regenerate
+   - If CL Status is IN_PROGRESS → check if the CL `.html` exists, offer to resume or regenerate
    - If Resume Status is not DONE → "Resume not yet generated. Run `/make-resume` first." Stop.
    - If CL Status is PENDING → proceed to Phase 1
 
@@ -56,7 +58,7 @@ Then:
 
 Read in this order:
 1. **Session file** — specifically: Company Context, Cover Letter Plan, Framing Strategy, ATS Keywords
-2. **Finished resume/CV .tex** — path from session file Output Files. Read to understand what CL must complement.
+2. **Finished resume/CV `.html`** (and its `.pdf`) — path from session file Output Files. Read to understand what CL must complement.
 3. `resume_builder/reference/cl_reference.md` — CL format rules, paragraph templates, anti-patterns
 4. `resume_builder/support/ai_fingerprint_rules.md` — Banned words, structural rules (CLs are most vulnerable)
 5. The matching bundle from session file role type → `resume_builder/bundles/bundle_[role_type].md` — Section 5 (Cover Letter)
@@ -70,7 +72,7 @@ Progress: "Loading CL context — [company], [role type] bundle, [institution ty
 
 ## Phase 2: Generate Cover Letter
 
-Read `resume_builder/templates/coverletter_template.tex`.
+Copy `resume_builder/templates/coverletter_template.html` to `output/<FolderName>/e2e_<name>_cover_letter.html` and fill every FILL marker (match `--accent` to the resume).
 
 **Detect institution type** from session file Cover Letter Plan:
 - Industry → 3 paragraphs, 250-300 words
@@ -84,7 +86,10 @@ Read `resume_builder/templates/coverletter_template.tex`.
 - Open with a specific reference to their work — no generic openers
 - Weave credentials into body paragraphs, not closing
 
-Save to `output/<FolderName>/e2e_<name>_cover_letter.tex`
+Also write `output/<FolderName>/e2e_<name>_cover_letter.txt`: plain-text version (salutation, body, sign-off; no markup) for pasting into application forms. Keep it identical to the HTML text.
+
+#### LaTeX pipeline only
+Read `resume_builder/templates/coverletter_template.tex` instead and save to `output/<FolderName>/e2e_<name>_cover_letter.tex`.
 
 Progress: "Writing [institution type] cover letter — [N] paragraphs, targeting [N] words..."
 
@@ -104,35 +109,42 @@ Do NOT present the CL draft to the user until all hooks are verified or flagged.
 
 ---
 
-## Phase 3: Compile & Verify
+## Phase 3: Render & Verify
 
 ```bash
-pdflatex -interaction=nonstopmode -output-directory=output/<FolderName> output/<FolderName>/e2e_<name>_cover_letter.tex
+bash resume_builder/helpers/render_pdf.sh output/<FolderName>/e2e_<name>_cover_letter.html
 ```
 
-Use Read tool to view compiled PDF. Verify:
+Use Read tool to view the rendered PDF (`pdfinfo` optional for exact page count). Verify:
 
 | Gate | Check | If FAIL |
 |------|-------|---------|
 | Word count | Industry 250-300, Lab/Academic 350-450 | Trim/expand |
-| Page count | Resume package: 1 page. CV package: 1-2 pages | Adjust content |
-| Page fill | 1pg: well-filled. 2pg: page 2 >= half filled before signature | Adjust |
+| Page count | Exactly 1 page (HTML pipeline) | Trim/expand content |
+| Page fill | Well-filled, signature on the page | Adjust |
 | Anti-patterns | No generic opener, no defensive framing, no credential dump | Rewrite |
 | Package cohesion | CL claims traceable to resume bullets, no contradictions | Fix |
-| Compile | Clean pdflatex | Fix LaTeX errors |
+| Render | PDF produced, no layout breaks | Fix HTML |
+| `.txt` | Matches the HTML text | Regenerate |
 
 Update session file:
 - Add CL to Output Files
 - Status: `Cover Letter: DONE`
 - Add Next Critique command
 
-Progress: "Compiled — 1 page, 278 words. Package cohesion verified."
+Progress: "Rendered — 1 page, 278 words. Package cohesion verified."
+
+### LaTeX pipeline only
+Compile instead of render; gates: page count (resume package 1 page, CV package 1-2 pages; 2pg: page 2 >= half filled before signature) and clean pdflatex.
+```bash
+pdflatex -interaction=nonstopmode -output-directory=output/<FolderName> output/<FolderName>/e2e_<name>_cover_letter.tex
+```
 
 ### >>>>>> MANDATORY STOP — DO NOT PROCEED <<<<<<
 Present: CL summary (word count, page count, key hooks used).
 **You MUST wait for the user's explicit text response before continuing.**
 
-If user requests changes: apply them, re-compile, re-verify. Update session file.
+If user requests changes: apply them, re-render, re-verify. Update session file.
 If user approves: update Status, present next command.
 
 **Do NOT trigger file organization** — that happens after `/critique` approval.

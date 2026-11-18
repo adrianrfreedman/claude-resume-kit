@@ -43,7 +43,7 @@ If `$ARGUMENTS` is a session file, or one already exists for this JD, read its S
 
 A critique written in the session that wrote the documents reads its own work and scores it high. So legs 2 and 5 go to one `Agent` call each (general-purpose, no model override), and wait for its result before the edit leg. Give it only paths, never your own view of the documents:
 
-> Working directory `<kit root>`. Read `.claude/skills/critique/SKILL.md` and follow it in full for `output/<Folder>/session_<name>.md` (Pass N). The output is HTML→PDF: read the `.html` and the rendered `.pdf`, ignore the `.tex`/`char_count.py`/`pdflatex` steps. Apply the keyword-insertion guard. Write/append `critique_<name>.md` and update the session file's Critique Summary and Status. Skip the skill's MANDATORY STOP. Return: dimension scores and total, Tier 1 items (current → proposed text, source in the experience files), Tier 2 items, guard-declined keywords, and any accuracy problem.
+> Working directory `<kit root>`. Read `.claude/skills/critique/SKILL.md` and follow it in full for `output/<Folder>/session_<name>.md` (Pass N). Read the `.html` and the rendered `.pdf`. Apply the keyword-insertion guard. Write/append `critique_<name>.md` and update the session file's Critique Summary and Status. Skip the skill's MANDATORY STOP. Return: dimension scores and total, Tier 1 items (current → proposed text, source in the experience files), Tier 2 items, guard-declined keywords, and any accuracy problem.
 
 The main session still owns the edit legs and any question for the user; a provenance question the critique raises comes back to the user, not to the subagent. Report scores as fresh-context.
 
